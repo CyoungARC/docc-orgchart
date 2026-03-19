@@ -66,7 +66,7 @@
     .tab.active{color:var(--text);border-bottom-color:var(--accent)}
 
     /* Chart panel */
-    #panel-chart{flex:1;overflow:auto;background:var(--bg);position:relative;display:flex;flex-direction:column}
+    #panel-chart{flex:1;overflow:auto;background:var(--bg);position:relative;display:block}
     #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
         linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
@@ -74,22 +74,18 @@
 
     /* This is the key — flex centering of the orgchart */
     #inner{
-      padding:40px;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      min-width:100%;
-      min-height:100%;
-      position:relative;
-      animation:fi .4s ease-out;
-    }
+  padding:40px;
+  text-align:center;
+  position:relative;
+  animation:fi .4s ease-out;
+}
     @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
     /* Table panel */
     #panel-table{flex:1;overflow:auto;background:var(--bg);display:none;padding:20px}
 
     /* OrgChart overrides */
-    .orgchart{background:transparent!important}
+    .orgchart{background:transparent!important;display:inline-block!important}
     .orgchart table{border-spacing:14px!important}
     .orgchart .node{width:170px!important;transition:transform .15s;cursor:default}
     .orgchart .node:hover{transform:translateY(-2px)}
