@@ -462,7 +462,7 @@ $(function() {
     }, 1000);
     return;
   }
-try {
+  try {
     allItems = JSON.parse(raw);
     if (!Array.isArray(allItems)||!allItems.length) throw new Error('Empty array.');
     history.replaceState(null, '', window.location.pathname);
@@ -477,7 +477,11 @@ try {
       $('#app').show();
       $('#zc').removeClass('hidden');
       renderChart(tree);
-      centerView();
+    });
+  } catch(e) {
+    showMsg('⚠️','Error',e.message,null,true);
+  }
+});
 // Force node width after library renders
 setTimeout(function() {
   document.querySelectorAll('.orgchart .node').forEach(function(node) {
