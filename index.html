@@ -295,15 +295,14 @@
     </div>
     <table id="roster-table">
       <thead>
-        <tr>
-          <th onclick="sortTable('so')" id="th-so">Sort <span class="sort-arrow">↕</span></th>
-          <th onclick="sortTable('t')" id="th-t">Position <span class="sort-arrow">↕</span></th>
-          <th onclick="sortTable('s')" id="th-s">Section <span class="sort-arrow">↕</span></th>
-          <th onclick="sortTable('p')" id="th-p">Name <span class="sort-arrow">↕</span></th>
-          <th onclick="sortTable('ph')" id="th-ph">Phone <span class="sort-arrow">↕</span></th>
-          <th onclick="sortTable('e')" id="th-e">Email <span class="sort-arrow">↕</span></th>
-        </tr>
-      </thead>
+  <tr>
+    <th onclick="sortTable('t')" id="th-t">Position <span class="sort-arrow">↕</span></th>
+    <th onclick="sortTable('s')" id="th-s">Section <span class="sort-arrow">↕</span></th>
+    <th onclick="sortTable('p')" id="th-p">Name <span class="sort-arrow">↕</span></th>
+    <th onclick="sortTable('ph')" id="th-ph">Phone <span class="sort-arrow">↕</span></th>
+    <th onclick="sortTable('e')" id="th-e">Email <span class="sort-arrow">↕</span></th>
+  </tr>
+    </thead>
       <tbody id="roster-body"></tbody>
     </table>
   </div>
@@ -432,14 +431,14 @@ function renderTable(items) {
       : '<span style="color:var(--dim)">—</span>';
 
     tr.innerHTML =
-      '<td class="pos">' +
-        '<span class="dbadge" style="background:' + color + '"></span>' +
-        escHtml(x.t||'') +
-      '</td>' +
-      '<td class="sec">' + escHtml(x.s||'—') + '</td>' +
-      '<td class="' + (isVacant?'vacant':'') + '">' + escHtml(x.p||'(Vacant)') + '</td>' +
-      '<td class="phone">' + escHtml(x.ph||'—') + '</td>' +
-      '<td class="email">' + emailHtml + '</td>';
+  '<td class="pos">' +
+    '<span class="dbadge" style="background:' + color + '"></span>' +
+    escHtml(x.t||'') +
+  '</td>' +
+  '<td class="sec">' + escHtml(x.s||'—') + '</td>' +
+  '<td class="' + (isVacant?'vacant':'') + '">' + escHtml(x.p||'(Vacant)') + '</td>' +
+  '<td class="phone">' + escHtml(x.ph||'—') + '</td>' +
+  '<td class="email">' + emailHtml + '</td>';
 
     tbody.appendChild(tr);
   });
