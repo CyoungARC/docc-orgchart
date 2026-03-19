@@ -294,26 +294,31 @@ function updateStats(items) {
 }
 
 function centerChart() {
-  // Wait for full render then measure actual chart dimensions
+  // First pass — quick
   setTimeout(function() {
-    var wrapper = document.getElementById('chart-wrapper');
-    var container = document.getElementById('chart-container');
-    var inner = document.getElementById('chart-inner');
-    if (!wrapper || !container) return;
-
-    // Get the actual rendered table width
-    var table = container.querySelector('table');
-    if (table) {
-      var tableWidth = table.offsetWidth;
-      var wrapperWidth = wrapper.clientWidth;
-      // Set inner padding so chart is centered
-      var sidePad = Math.max(60, Math.floor((wrapperWidth - tableWidth) / 2));
-      inner.style.paddingLeft = sidePad + 'px';
-      inner.style.paddingRight = sidePad + 'px';
-    }
-    wrapper.scrollTop = 0;
-    wrapper.scrollLeft = 0;
+    doCenter();
   }, 600);
+  // Second pass — after full layout settles
+  setTimeout(function() {
+    doCenter();
+  }, 1500);
+}
+
+function doCenter() {
+  var wrapper = document.getElementById('chart-wrapper');
+  var container = document.getElementById('chart-container');
+  var inner = document.getElementById('chart-inner');
+  if (!wrapper || !container) return;
+  var table = container.querySelector('table');
+  if (table) {
+    var tableWidth = table.offsetWidth;
+    var wrapperWidth = wrapper.clientWidth;
+    var sidePad = Math.max(60, Math.floor((wrapperWidth - tableWidth) / 2));
+    inner.style.paddingLeft = sidePad + 'px';
+    inner.style.paddingRight = sidePad + 'px';
+  }
+  wrapper.scrollTop = 0;
+  wrapper.scrollLeft = 0;
 }
 
 function resetAndCenter() {
