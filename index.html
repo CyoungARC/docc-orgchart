@@ -65,21 +65,34 @@
     .tab:hover{color:var(--text)}
     .tab.active{color:var(--text);border-bottom-color:var(--accent)}
 
-    /* Chart panel */
-    #panel-chart{flex:1;overflow:auto;background:var(--bg);position:relative;display:block}
-    #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
-      background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
-        linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
-      background-size:40px 40px;opacity:.2}
-
-    /* This is the key — flex centering of the orgchart */
-    #inner{
+/* Chart panel */
+#panel-chart{
+  flex:1;
+  background:var(--bg);
+  position:relative;
+  display:block;
+  overflow:hidden;
+}
+#panel-chart::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
+    linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
+  background-size:40px 40px;
+  opacity:.2;
+  z-index:0;
+}
+#inner{
   padding:40px;
   text-align:center;
   position:relative;
   animation:fi .4s ease-out;
-  overflow:visible;
+  width:100%;
   height:100%;
+  overflow:visible;
+  z-index:1;
 }
     @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
@@ -310,6 +323,11 @@ function assignDepths(n, d) {
 
 function renderChart(tree) {
   $('#chart').empty();
+  $('#chart').css({
+    'width': '100%',
+    'height': 'calc(100vh - 200px)',
+    'overflow': 'visible'
+  });
   $('#chart').orgchart({
     data: tree,
     nodeTitle: 'name',
