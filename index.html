@@ -438,8 +438,6 @@ $(function() {
   try {
     allItems = JSON.parse(raw);
     if (!Array.isArray(allItems) || !allItems.length) throw new Error('Empty array.');
-    // Clean URL immediately after successful parse — hides data parameter from address bar
-    history.replaceState(null, '', window.location.pathname);
   } catch(e) {
     showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',null,true);
     return;
@@ -449,6 +447,7 @@ $(function() {
   try {
     var tree = buildTree(allItems);
     assignDepths(tree, 0);
+    history.replaceState(null, '', window.location.pathname);
     $('#loading').fadeOut(200, function(){
       $('#app').show();
       $('#zc').removeClass('hidden');
