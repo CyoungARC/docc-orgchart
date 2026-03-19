@@ -97,7 +97,14 @@
     /* OrgChart overrides */
     .orgchart{background:transparent!important;display:inline-block!important}
     .orgchart table{border-spacing:14px!important}
-    .orgchart .node{width:200px!important;transition:transform .15s;cursor:default}
+    .orgchart .node{
+  width:210px!important;
+  min-width:210px!important;
+  max-width:210px!important;
+  transition:transform .15s;
+  cursor:default;
+  white-space:normal!important;
+}
     .orgchart .node:hover{transform:translateY(-2px)}
     .orgchart .node .title{
       font-family:'Barlow Condensed',sans-serif!important;font-size:12px!important;
@@ -333,11 +340,12 @@ function renderChart(tree) {
     zoomOutLimit: 0.15,
     collapsible: false,
     createNode: function($n, d) {
-      $n.addClass('d' + Math.min(d.depth||0, 8));
-      var nm = d.name||'', p = d.title||'';
-      $n.find('.title').attr('title',nm).text(nm);
-      $n.find('.content').attr('title',p).text(p);
-    }
+  $n.addClass('d' + Math.min(d.depth||0, 8));
+  $n.css('width', '210px');
+  var nm = d.name||'', p = d.title||'';
+  $n.find('.title').attr('title',nm).text(nm);
+  $n.find('.content').attr('title',p).text(p);
+}
   });
 }
 
