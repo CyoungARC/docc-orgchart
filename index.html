@@ -446,12 +446,25 @@ function zoomOut() { zoom=Math.max(zoom-0.15,0.15); $('#chart').css({transform:'
 $(function() {
   var raw = param('data');
   if (!raw) {
-    showMsg('📋','No Roster Data','Open this page using the <strong>View Org Chart</strong> button in PowerApps.',
-      'https://cyoungarc.github.io/docc-orgchart/?data=[encoded JSON]',false);
+    var countdown = 5;
+    showMsg('📋', 'Redirecting to DOCC App',
+      'No roster data found. Redirecting you to the DOCC PowerApp in <strong id="countdown">5</strong> seconds...<br><br>' +
+      '<a href="https://rdcrss.org/docc" style="color:#79C0FF">Click here if you are not redirected automatically</a>',
+      null, false);
+    var timer = setInterval(function() {
+      countdown--;
+      var el = document.getElementById('countdown');
+      if (el) el.textContent = countdown;
+      if (countdown <= 0) {
+        clearInterval(timer);
+        window.location.href = 'https://rdcrss.org/docc';
+      }
+    }, 1000);
     return;
   }
   try {
     allItems = JSON.parse(raw);
+    history.replaceState(null, '', window.location.pathname);
     if (!Array.isArray(allItems)||!allItems.length) throw new Error('Empty array.');
   } catch(e) {
     showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',null,true);
