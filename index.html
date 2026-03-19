@@ -5,117 +5,107 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DOCC — Activation Org Chart</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/orgchart/5.0.0/css/jquery.orgchart.min.css">
   <style>
     :root {
       --c0:#6B1111;--c1:#992222;--c2:#0F3460;--c3:#16497A;
       --c4:#0B5345;--c5:#0E6655;--c6:#2C3E50;--c7:#4A235A;--c8:#784212;
       --bg:#0D1117;--surface:#161B22;--surface2:#21262D;
-      --border:#30363D;--text:#E6EDF3;--text-dim:#8B949E;
-      --accent:#C0392B;
+      --border:#30363D;--text:#E6EDF3;--dim:#8B949E;--accent:#C0392B;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden}
     body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text)}
-    #app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+    #app{display:flex;flex-direction:column;height:100vh}
 
     /* Header */
-    #header{
-      background:var(--surface);border-bottom:1px solid var(--border);
+    #hdr{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;height:52px;display:flex;align-items:center;
-      justify-content:space-between;flex-shrink:0;position:relative;z-index:10;
-    }
-    #header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+      justify-content:space-between;flex-shrink:0;position:relative}
+    #hdr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
       background:linear-gradient(180deg,var(--accent),transparent)}
-    .hdr-left{display:flex;align-items:center;gap:14px}
-    .hdr-logo{width:32px;height:32px;background:var(--accent);border-radius:6px;
+    .hl{display:flex;align-items:center;gap:12px}
+    .logo{width:32px;height:32px;background:var(--accent);border-radius:6px;
       display:flex;align-items:center;justify-content:center;
-      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;
-      color:white;letter-spacing:.02em;flex-shrink:0}
-    .hdr-titles{display:flex;flex-direction:column;gap:1px}
-    .hdr-sub{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;
-      letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase}
-    .hdr-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;
-      letter-spacing:.06em;color:var(--text);text-transform:uppercase}
-    .hdr-div{width:1px;height:28px;background:var(--border)}
-    #act-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:#fff}
+    .hdiv{width:1px;height:28px;background:var(--border)}
+    .hsub{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;
+      letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+    .htitle{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;
+      letter-spacing:.06em;text-transform:uppercase}
+    #badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;background:rgba(192,57,43,.2);
       border:1px solid rgba(192,57,43,.4);color:#E74C3C;padding:3px 10px;border-radius:3px}
-    .dot-live{width:6px;height:6px;border-radius:50%;background:#2ECC71;
-      display:inline-block;margin-right:5px;animation:livepulse 2s ease-in-out infinite}
-    @keyframes livepulse{0%,100%{opacity:1;box-shadow:0 0 4px #2ECC71}50%{opacity:.5;box-shadow:none}}
-    .hdr-right{display:flex;align-items:center;gap:6px}
-    .stat-chip{font-size:11px;color:var(--text-dim);background:var(--surface2);
-      border:1px solid var(--border);padding:3px 9px;border-radius:3px;
-      font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
-    .stat-chip strong{color:var(--text);font-weight:600}
+    .dot{width:6px;height:6px;border-radius:50%;background:#2ECC71;display:inline-block;
+      margin-right:5px;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .hr{display:flex;align-items:center;gap:6px}
+    .chip{font-size:11px;color:var(--dim);background:var(--surface2);border:1px solid var(--border);
+      padding:3px 9px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
+    .chip strong{color:var(--text)}
     .btn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;
       letter-spacing:.06em;text-transform:uppercase;background:var(--surface2);
-      border:1px solid var(--border);color:var(--text-dim);padding:5px 12px;
-      border-radius:4px;cursor:pointer;transition:all .15s;white-space:nowrap}
-    .btn:hover{background:var(--surface);border-color:#4A5568;color:var(--text)}
-    .btn-primary{background:rgba(192,57,43,.15);border-color:rgba(192,57,43,.4);color:#E74C3C}
-    .btn-primary:hover{background:rgba(192,57,43,.25);border-color:rgba(192,57,43,.6);color:#FF6B6B}
+      border:1px solid var(--border);color:var(--dim);padding:5px 12px;
+      border-radius:4px;cursor:pointer;transition:all .15s}
+    .btn:hover{background:var(--surface);color:var(--text);border-color:#555}
+    .btn-r{background:rgba(192,57,43,.15);border-color:rgba(192,57,43,.4);color:#E74C3C}
+    .btn-r:hover{background:rgba(192,57,43,.25);color:#FF6B6B}
 
     /* Legend */
-    #legend{background:var(--surface);border-bottom:1px solid var(--border);
-      padding:6px 20px;display:flex;align-items:center;gap:14px;
-      flex-shrink:0;flex-wrap:wrap}
-    .leg-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
-      letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-right:2px}
-    .li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-dim)}
-    .ls{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+    #leg{background:var(--surface);border-bottom:1px solid var(--border);
+      padding:5px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+    .ll{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+      letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+    .li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
+    .ls{width:10px;height:10px;border-radius:2px}
 
-    /* Chart area */
-    #chart-wrapper{flex:1;overflow:auto;position:relative;background:var(--bg);
-      background-image:radial-gradient(circle at 20% 20%,rgba(192,57,43,.04) 0%,transparent 50%),
-        radial-gradient(circle at 80% 80%,rgba(15,52,96,.06) 0%,transparent 50%)}
-    #chart-wrapper::before{content:'';position:absolute;inset:0;
+    /* Chart wrapper — this is the scrollable area */
+    #wrap{flex:1;overflow:auto;background:var(--bg);position:relative}
+    #wrap::before{content:'';position:absolute;inset:0;pointer-events:none;
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
         linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
-      background-size:40px 40px;opacity:.25;pointer-events:none}
-    #chart-inner{
-  padding:40px;
-  width:100%;
-  min-height:100%;
-  position:relative;
-  animation:fadeIn .4s ease-out;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-}
-      min-height:100%;position:relative;animation:fadeIn .4s ease-out}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+      background-size:40px 40px;opacity:.2}
 
-    /* OrgChart nodes */
-    .orgchart{background:transparent!important;margin:0 auto!important}
-    .orgchart>table{margin:0 auto!important}
+    /* Chart inner — centers the orgchart horizontally */
+    #inner{
+      padding:40px 80px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      min-width:max-content;
+      min-height:100%;
+      animation:fi .4s ease-out;
+    }
+    @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* OrgChart overrides */
+    .orgchart{background:transparent!important}
     .orgchart table{border-spacing:14px!important}
-    .orgchart .node{width:170px!important;cursor:default;transition:transform .15s}
+    .orgchart .node{width:170px!important;transition:transform .15s;cursor:default}
     .orgchart .node:hover{transform:translateY(-2px)}
     .orgchart .node .title{
-      font-family:'Barlow Condensed',sans-serif!important;font-size:12px!important;
-      font-weight:700!important;letter-spacing:.03em!important;padding:7px 10px!important;
+      font-family:'Barlow Condensed',sans-serif!important;
+      font-size:12px!important;font-weight:700!important;
+      letter-spacing:.03em!important;padding:7px 10px!important;
       border-radius:6px 6px 0 0!important;line-height:1.3!important;
       color:rgba(255,255,255,.95)!important;border:none!important;
       text-shadow:0 1px 2px rgba(0,0,0,.3)}
     .orgchart .node .content{
       font-family:'Barlow',sans-serif!important;font-size:10px!important;
-      font-weight:500!important;padding:5px 10px!important;
-      border-radius:0 0 6px 6px!important;color:var(--text-dim)!important;
-      background:var(--surface2)!important;border:1px solid var(--border)!important;
-      border-top:none!important;min-height:24px!important;line-height:1.3!important}
-    .d0 .title{background:linear-gradient(135deg,#6B1111,#8B1A1A)!important;box-shadow:0 2px 8px rgba(107,17,17,.4)}
-    .d1 .title{background:linear-gradient(135deg,#992222,#B03030)!important;box-shadow:0 2px 8px rgba(153,34,34,.35)}
-    .d2 .title{background:linear-gradient(135deg,#0F3460,#1A4A7A)!important;box-shadow:0 2px 8px rgba(15,52,96,.4)}
-    .d3 .title{background:linear-gradient(135deg,#16497A,#1E5C96)!important;box-shadow:0 2px 8px rgba(22,73,122,.35)}
-    .d4 .title{background:linear-gradient(135deg,#0B5345,#0E6B58)!important;box-shadow:0 2px 8px rgba(11,83,69,.4)}
-    .d5 .title{background:linear-gradient(135deg,#0E6655,#138A72)!important;box-shadow:0 2px 8px rgba(14,102,85,.35)}
-    .d6 .title{background:linear-gradient(135deg,#2C3E50,#374151)!important;box-shadow:0 2px 8px rgba(44,62,80,.4)}
-    .d7 .title{background:linear-gradient(135deg,#4A235A,#5C2D6E)!important;box-shadow:0 2px 8px rgba(74,35,90,.4)}
-    .d8 .title{background:linear-gradient(135deg,#784212,#8E5318)!important;box-shadow:0 2px 8px rgba(120,66,18,.4)}
+      padding:5px 10px!important;border-radius:0 0 6px 6px!important;
+      color:var(--dim)!important;background:var(--surface2)!important;
+      border:1px solid var(--border)!important;border-top:none!important;
+      min-height:24px!important;line-height:1.3!important}
+    .d0 .title{background:linear-gradient(135deg,#6B1111,#8B1A1A)!important;box-shadow:0 2px 8px rgba(107,17,17,.5)}
+    .d1 .title{background:linear-gradient(135deg,#992222,#B03030)!important;box-shadow:0 2px 8px rgba(153,34,34,.4)}
+    .d2 .title{background:linear-gradient(135deg,#0F3460,#1A4A7A)!important;box-shadow:0 2px 8px rgba(15,52,96,.5)}
+    .d3 .title{background:linear-gradient(135deg,#16497A,#1E5C96)!important;box-shadow:0 2px 8px rgba(22,73,122,.4)}
+    .d4 .title{background:linear-gradient(135deg,#0B5345,#0E6B58)!important;box-shadow:0 2px 8px rgba(11,83,69,.5)}
+    .d5 .title{background:linear-gradient(135deg,#0E6655,#138A72)!important;box-shadow:0 2px 8px rgba(14,102,85,.4)}
+    .d6 .title{background:linear-gradient(135deg,#2C3E50,#374151)!important;box-shadow:0 2px 8px rgba(44,62,80,.5)}
+    .d7 .title{background:linear-gradient(135deg,#4A235A,#5C2D6E)!important;box-shadow:0 2px 8px rgba(74,35,90,.5)}
+    .d8 .title{background:linear-gradient(135deg,#784212,#8E5318)!important;box-shadow:0 2px 8px rgba(120,66,18,.5)}
     .orgchart .lines .downLine{background-color:#30363D!important;width:1px!important}
     .orgchart .lines .topLine{border-top:1px solid #30363D!important}
     .orgchart .lines .rightLine{border-right:1px solid #30363D!important}
@@ -124,82 +114,82 @@
 
     /* Loading */
     #loading{position:fixed;inset:0;background:var(--bg);display:flex;
-      flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:20px}
-    .loader-logo{width:56px;height:56px;background:rgba(192,57,43,.15);
-      border:1px solid rgba(192,57,43,.3);border-radius:12px;
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:var(--accent)}
-    .loader-bar{width:200px;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden}
-    .loader-fill{height:100%;background:linear-gradient(90deg,var(--accent),#E74C3C);
-      border-radius:2px;animation:loadbar 1.5s ease-in-out infinite}
-    @keyframes loadbar{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
-    .loader-text{font-family:'Barlow Condensed',sans-serif;font-size:12px;
-      letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+      flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:18px}
+    .slogo{width:52px;height:52px;background:rgba(192,57,43,.15);
+      border:1px solid rgba(192,57,43,.3);border-radius:10px;display:flex;
+      align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;
+      font-weight:800;font-size:20px;color:var(--accent)}
+    .sbar{width:180px;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden}
+    .sfill{height:100%;background:linear-gradient(90deg,var(--accent),#E74C3C);
+      animation:lb 1.5s ease-in-out infinite}
+    @keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+    .stxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;
+      text-transform:uppercase;color:var(--dim)}
 
     /* Message */
-    #msg-box{display:none;position:fixed;inset:0;background:var(--bg);
+    #msgbox{display:none;position:fixed;inset:0;background:var(--bg);
       align-items:center;justify-content:center;z-index:100}
-    #msg-box.vis{display:flex}
-    .msg-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
-      padding:32px 40px;max-width:520px;text-align:center}
-    .msg-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;
-      justify-content:center;font-size:22px;margin:0 auto 16px}
-    .msg-card h3{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;
-      letter-spacing:.04em;color:var(--text);margin-bottom:10px}
-    .msg-card p{font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:8px}
-    .msg-card code{display:block;background:var(--surface2);border:1px solid var(--border);
+    #msgbox.vis{display:flex}
+    .mcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      padding:30px 38px;max-width:500px;text-align:center}
+    .micon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;
+      justify-content:center;font-size:20px;margin:0 auto 14px}
+    .mcard h3{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;
+      letter-spacing:.04em;color:var(--text);margin-bottom:8px}
+    .mcard p{font-size:12px;color:var(--dim);line-height:1.7}
+    .mcard code{display:block;background:var(--surface2);border:1px solid var(--border);
       border-radius:4px;padding:10px 14px;font-size:10px;color:#79C0FF;text-align:left;
       margin-top:10px;line-height:1.6;word-break:break-all}
 
     /* Zoom */
-    #zoom-ctrl{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;
+    #zc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;
       gap:4px;z-index:50}
-    .zbtn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);
-      color:var(--text-dim);border-radius:4px;cursor:pointer;font-size:16px;
-      display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
-    .zbtn:hover{background:var(--surface2);color:var(--text);border-color:#4A5568}
+    .zb{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);
+      color:var(--dim);border-radius:4px;cursor:pointer;font-size:16px;
+      display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .zb:hover{background:var(--surface2);color:var(--text);border-color:#555}
   </style>
 </head>
 <body>
 
 <div id="loading">
-  <div class="loader-logo">ARC</div>
-  <div class="loader-bar"><div class="loader-fill"></div></div>
-  <div class="loader-text">Loading Activation Roster</div>
+  <div class="slogo">ARC</div>
+  <div class="sbar"><div class="sfill"></div></div>
+  <div class="stxt">Loading Activation Roster</div>
 </div>
 
-<div id="msg-box">
-  <div class="msg-card">
-    <div class="msg-icon" id="msg-icon"></div>
-    <h3 id="msg-title"></h3>
-    <p id="msg-body"></p>
-    <code id="msg-code" style="display:none"></code>
+<div id="msgbox">
+  <div class="mcard">
+    <div class="micon" id="micon"></div>
+    <h3 id="mtitle"></h3>
+    <p id="mbody"></p>
+    <code id="mcode" style="display:none"></code>
   </div>
 </div>
 
 <div id="app" style="display:none">
-  <div id="header">
-    <div class="hdr-left">
-      <div class="hdr-logo">ARC</div>
-      <div class="hdr-div"></div>
-      <div class="hdr-titles">
-        <div class="hdr-sub">Disaster Operations Coordination Center</div>
-        <div class="hdr-title">Activation Org Chart</div>
+  <div id="hdr">
+    <div class="hl">
+      <div class="logo">ARC</div>
+      <div class="hdiv"></div>
+      <div>
+        <div class="hsub">Disaster Operations Coordination Center</div>
+        <div class="htitle">Activation Org Chart</div>
       </div>
-      <div id="act-badge"><span class="dot-live"></span>ACTIVATED</div>
+      <div id="badge"><span class="dot"></span>ACTIVATED</div>
     </div>
-    <div class="hdr-right">
-      <div class="stat-chip"><strong id="s-total">—</strong> positions</div>
-      <div class="stat-chip"><strong id="s-filled">—</strong> filled</div>
-      <div class="stat-chip"><strong id="s-vacant">—</strong> vacant</div>
-      <div class="hdr-div"></div>
-      <button class="btn btn-primary" onclick="resetAndCenter()">⊕ Center</button>
+    <div class="hr">
+      <div class="chip"><strong id="st">—</strong> positions</div>
+      <div class="chip"><strong id="sf">—</strong> filled</div>
+      <div class="chip"><strong id="sv">—</strong> vacant</div>
+      <div class="hdiv"></div>
+      <button class="btn btn-r" onclick="resetView()">⊕ Center</button>
       <button class="btn" onclick="window.print()">Print</button>
     </div>
   </div>
 
-  <div id="legend">
-    <span class="leg-lbl">Levels:</span>
+  <div id="leg">
+    <span class="ll">Levels:</span>
     <div class="li"><div class="ls" style="background:#6B1111"></div>Director</div>
     <div class="li"><div class="ls" style="background:#992222"></div>Deputy</div>
     <div class="li"><div class="ls" style="background:#0F3460"></div>NAD</div>
@@ -209,74 +199,71 @@
     <div class="li"><div class="ls" style="background:#2C3E50"></div>L6</div>
     <div class="li"><div class="ls" style="background:#4A235A"></div>L7</div>
     <div class="li"><div class="ls" style="background:#784212"></div>L8</div>
-    <div style="margin-left:auto;font-size:10px;color:var(--text-dim)">
-      Drag to pan &nbsp;·&nbsp; Scroll to zoom
-    </div>
+    <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
   </div>
 
-  <div id="chart-wrapper">
-    <div id="chart-inner">
-      <div id="chart-container"></div>
+  <div id="wrap">
+    <div id="inner">
+      <div id="chart"></div>
     </div>
   </div>
 </div>
 
-<div id="zoom-ctrl" style="display:none">
-  <button class="zbtn" onclick="zoomIn()" title="Zoom in">+</button>
-  <button class="zbtn" onclick="zoomOut()" title="Zoom out">−</button>
-  <button class="zbtn" onclick="resetAndCenter()" title="Reset" style="font-size:11px">⊕</button>
+<div id="zc" style="display:none">
+  <button class="zb" onclick="zoomIn()">+</button>
+  <button class="zb" onclick="zoomOut()">−</button>
+  <button class="zb" onclick="resetView()" style="font-size:11px">⊕</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/orgchart/5.0.0/js/jquery.orgchart.min.js"></script>
 <script>
-var currentZoom = 1.0;
+var zoom = 1.0;
 
-function getUrlParam(name) {
-  var r = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
+function param(n) {
+  var r = new RegExp('[?&]' + n + '=([^&#]*)').exec(location.href);
   return r ? decodeURIComponent(r[1].replace(/\+/g,' ')) : null;
 }
 
-function showMessage(icon, title, body, code, isErr) {
+function msg(icon, title, body, code, err) {
   $('#loading').hide();
-  $('#msg-icon').html(icon).css({
-    background: isErr ? 'rgba(192,57,43,.15)' : 'rgba(22,73,122,.15)',
-    border: isErr ? '1px solid rgba(192,57,43,.3)' : '1px solid rgba(22,73,122,.3)'
+  $('#micon').html(icon).css({
+    background: err ? 'rgba(192,57,43,.15)' : 'rgba(22,73,122,.15)',
+    border: err ? '1px solid rgba(192,57,43,.3)' : '1px solid rgba(22,73,122,.3)'
   });
-  $('#msg-title').text(title);
-  $('#msg-body').html(body);
-  if (code) $('#msg-code').text(code).show();
-  $('#msg-box').addClass('vis');
+  $('#mtitle').text(title);
+  $('#mbody').html(body);
+  if (code) $('#mcode').text(code).show();
+  $('#msgbox').addClass('vis');
 }
 
 function buildTree(items) {
   var map = {}, roots = [];
-  items.forEach(function(item) {
-    map[item.i] = {
-      id: String(item.i),
-      name: (item.t || '(Untitled)').trim(),
-      title: (item.p || '(Vacant)').trim(),
-      parentId: item.r || 0,
-      vacant: !item.p || item.p === '(Vacant)',
+  items.forEach(function(x) {
+    map[x.i] = {
+      id: String(x.i),
+      name: (x.t||'(Untitled)').trim(),
+      title: (x.p||'(Vacant)').trim(),
+      pid: x.r||0,
       children: []
     };
   });
-  Object.values(map).forEach(function(node) {
-    if (node.parentId && map[node.parentId]) map[node.parentId].children.push(node);
-    else roots.push(node);
+  Object.values(map).forEach(function(n) {
+    if (n.pid && map[n.pid]) map[n.pid].children.push(n);
+    else roots.push(n);
   });
   if (!roots.length) throw new Error('No root nodes found.');
-  return roots.length === 1 ? roots[0] : {id:'root',name:'DOCC',title:'',parentId:0,vacant:false,children:roots};
+  return roots.length === 1 ? roots[0] : {id:'r',name:'DOCC',title:'',pid:0,children:roots};
 }
 
-function assignDepths(node, d) {
-  node.depth = d;
-  (node.children||[]).forEach(function(c){ assignDepths(c, d+1); });
+function depth(n, d) {
+  n.depth = d;
+  (n.children||[]).forEach(function(c){ depth(c, d+1); });
 }
 
-function renderChart(tree) {
-  $('#chart-container').empty();
-  $('#chart-container').orgchart({
+function render(tree) {
+  $('#chart').empty();
+  $('#chart').orgchart({
     data: tree,
     nodeTitle: 'name',
     nodeContent: 'title',
@@ -285,76 +272,75 @@ function renderChart(tree) {
     zoomInLimit: 2.5,
     zoomOutLimit: 0.15,
     collapsible: false,
-    createNode: function($node, data) {
-      var d = Math.min(data.depth||0, 8);
-      $node.addClass('d' + d);
-      if (data.vacant) $node.addClass('vacant');
-      var name = data.name||'', person = data.title||'';
-      $node.find('.title').attr('title', name).text(name.length>28 ? name.substring(0,26)+'…' : name);
-      $node.find('.content').attr('title', person).text(person.length>28 ? person.substring(0,26)+'…' : person);
+    createNode: function($n, d) {
+      $n.addClass('d' + Math.min(d.depth||0, 8));
+      var nm = d.name||'', p = d.title||'';
+      $n.find('.title').attr('title',nm).text(nm.length>28?nm.slice(0,26)+'…':nm);
+      $n.find('.content').attr('title',p).text(p.length>28?p.slice(0,26)+'…':p);
     }
   });
 }
 
-function updateStats(items) {
-  var vacant = items.filter(function(i){ return !i.p || i.p==='(Vacant)'; }).length;
-  $('#s-total').text(items.length);
-  $('#s-filled').text(items.length - vacant);
-  $('#s-vacant').text(vacant);
+function stats(items) {
+  var v = items.filter(function(i){ return !i.p||i.p==='(Vacant)'; }).length;
+  $('#st').text(items.length);
+  $('#sf').text(items.length-v);
+  $('#sv').text(v);
 }
 
-function centerChart() {
-  setTimeout(function() { doCenter(); }, 600);
-  setTimeout(function() { doCenter(); }, 1500);
+// Center by scrolling the wrapper so the chart table is horizontally centered
+function centerView() {
+  setTimeout(function() {
+    var wrap = document.getElementById('wrap');
+    var inner = document.getElementById('inner');
+    if (!wrap || !inner) return;
+    // inner uses min-width:max-content so its scrollWidth = actual chart width + padding
+    var scrollW = inner.scrollWidth;
+    var clientW = wrap.clientWidth;
+    // If chart is wider than viewport, scroll to horizontal center
+    // If chart is narrower, scrollLeft = 0 and flexbox centers it
+    wrap.scrollLeft = scrollW > clientW ? Math.floor((scrollW - clientW) / 2) : 0;
+    wrap.scrollTop = 0;
+  }, 800);
 }
 
-function doCenter() {
-  var wrapper = document.getElementById('chart-wrapper');
-  if (!wrapper) return;
-  wrapper.scrollTop = 0;
-  wrapper.scrollLeft = 0;
+function resetView() {
+  zoom = 1.0;
+  $('#chart').css({transform:'', 'transform-origin':''});
+  centerView();
 }
 
-function resetAndCenter() {
-  currentZoom = 1.0;
-  $('#chart-container').css({'transform':'matrix(1,0,0,1,0,0)','transform-origin':'top center'});
-  centerChart();
-}
+function zoomIn()  { zoom = Math.min(zoom+0.15,2.5); $('#chart').css({transform:'scale('+zoom+')', 'transform-origin':'top center'}); }
+function zoomOut() { zoom = Math.max(zoom-0.15,0.15); $('#chart').css({transform:'scale('+zoom+')', 'transform-origin':'top center'}); }
 
-function zoomIn()  { currentZoom = Math.min(currentZoom+0.15, 2.5); applyZoom(); }
-function zoomOut() { currentZoom = Math.max(currentZoom-0.15, 0.15); applyZoom(); }
-function applyZoom() {
-  $('#chart-container').css({'transform':'scale('+currentZoom+')','transform-origin':'top center'});
-}
-
-$(document).ready(function() {
-  var raw = getUrlParam('data');
+$(function() {
+  var raw = param('data');
   if (!raw) {
-    showMessage('📋','No Roster Data',
-      'Open this page using the <strong>View Org Chart</strong> button in your PowerApps screen.',
+    msg('📋','No Roster Data',
+      'Open this page using the <strong>View Org Chart</strong> button in PowerApps.',
       'https://cyoungarc.github.io/docc-orgchart/?data=[encoded JSON]', false);
     return;
   }
   var items;
   try {
     items = JSON.parse(raw);
-    if (!Array.isArray(items) || !items.length) throw new Error('Empty or invalid data array.');
+    if (!Array.isArray(items)||!items.length) throw new Error('Empty array.');
   } catch(e) {
-    showMessage('⚠️','Data Error','Could not parse roster data: <strong>'+e.message+'</strong>',null,true);
+    msg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',null,true);
     return;
   }
   try {
     var tree = buildTree(items);
-    assignDepths(tree, 0);
-    updateStats(items);
-    $('#loading').fadeOut(250, function() {
+    depth(tree, 0);
+    stats(items);
+    $('#loading').fadeOut(200, function(){
       $('#app').show();
-      $('#zoom-ctrl').show();
-      renderChart(tree);
-      centerChart();
+      $('#zc').show();
+      render(tree);
+      centerView();
     });
   } catch(e) {
-    showMessage('⚠️','Render Error', e.message, null, true);
+    msg('⚠️','Error', e.message, null, true);
   }
 });
 </script>
