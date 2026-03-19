@@ -462,10 +462,10 @@ $(function() {
     }, 1000);
     return;
   }
-  try {
+try {
     allItems = JSON.parse(raw);
-    history.replaceState(null, '', window.location.pathname);
     if (!Array.isArray(allItems)||!allItems.length) throw new Error('Empty array.');
+    history.replaceState(null, '', window.location.pathname);
   } catch(e) {
     showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',null,true);
     return;
