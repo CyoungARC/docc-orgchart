@@ -80,7 +80,8 @@
     @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
     /* OrgChart overrides */
-    .orgchart{background:transparent!important}
+    .orgchart{background:transparent!important;width:100%!important;text-align:center!important}
+    .orgchart>table{margin:0 auto!important;float:none!important}
     .orgchart table{border-spacing:14px!important}
     .orgchart .node{width:170px!important;transition:transform .15s;cursor:default}
     .orgchart .node:hover{transform:translateY(-2px)}
@@ -291,16 +292,9 @@ function stats(items) {
 // Center by scrolling the wrapper so the chart table is horizontally centered
 function centerView() {
   setTimeout(function() {
-    var wrap = document.getElementById('wrap');
-    var inner = document.getElementById('inner');
-    if (!wrap || !inner) return;
-    // inner uses min-width:max-content so its scrollWidth = actual chart width + padding
-    var scrollW = inner.scrollWidth;
-    var clientW = wrap.clientWidth;
-    // If chart is wider than viewport, scroll to horizontal center
-    // If chart is narrower, scrollLeft = 0 and flexbox centers it
-    wrap.scrollLeft = scrollW > clientW ? Math.floor((scrollW - clientW) / 2) : 0;
-    wrap.scrollTop = 0;
+    var chart = document.querySelector('.orgchart');
+    if (!chart) return;
+    chart.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
   }, 800);
 }
 
