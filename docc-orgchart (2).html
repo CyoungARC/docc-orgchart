@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOCC Org Chart</title>
+
+  <!-- OrgChart Library (MIT License) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/orgchart/5.0.0/css/jquery.orgchart.min.css">
+
+  <style>
+    /* ── Root Variables ───────────────────────────────────────────── */
+    :root {
+      --red-dark:   #7B1C1C;
+      --red-mid:    #A63030;
+      --navy:       #1B3A5C;
+      --navy-mid:   #1B4F72;
+      --teal:       #0E6655;
+      --teal-mid:   #117A65;
+      --slate:      #4A5568;
+      --purple:     #553C8B;
+      --amber:      #7D5A0D;
+      --bg:         #F0F2F5;
+      --surface:    #FFFFFF;
+      --border:     #CBD5E0;
+      --text-light: #EDF2F7;
+      --text-dim:   #CBD5E0;
+      --shadow:     0 4px 24px rgba(0,0,0,0.12);
+    }
+
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: #2D3748;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    #header {
+      background: linear-gradient(135deg, var(--red-dark) 0%, #4A0E0E 100%);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    #header h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #header .subtitle {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Toolbar ──────────────────────────────────────────────────── */
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.2s;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.28); }
+
+    #activation-badge {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Status bar ───────────────────────────────────────────────── */
+    #statusbar {
+      background: #2D3748;
+      color: #A0AEC0;
+      font-size: 10px;
+      padding: 4px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    #statusbar span { display: flex; align-items: center; gap: 4px; }
+
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #68D391;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── Legend ───────────────────────────────────────────────────── */
+    #legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: #4A5568;
+    }
+
+    .legend-swatch {
+      width: 12px; height: 12px;
+      border-radius: 2px;
+    }
+
+    /* ── Chart container ──────────────────────────────────────────── */
+    #chart-wrapper {
+      flex: 1;
+      overflow: auto;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #chart-container {
+      min-width: 100%;
+    }
+
+    /* ── OrgChart node overrides ──────────────────────────────────── */
+    .orgchart {
+      background: transparent !important;
+    }
+
+    .orgchart .node {
+      width: 160px !important;
+    }
+
+    .orgchart .node .title {
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      padding: 6px 8px !important;
+      border-radius: 6px 6px 0 0 !important;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+    }
+
+    .orgchart .node .content {
+      font-size: 10px !important;
+      padding: 5px 8px !important;
+      border-radius: 0 0 6px 6px !important;
+      color: #4A5568 !important;
+      background: white !important;
+      border: 1px solid var(--border) !important;
+      border-top: none !important;
+      line-height: 1.3;
+      min-height: 24px;
+    }
+
+    /* Depth-based node colors */
+    .depth-0 .title { background: var(--red-dark) !important; border-color: var(--red-dark) !important; color: white !important; }
+    .depth-1 .title { background: var(--red-mid) !important; border-color: var(--red-mid) !important; color: white !important; }
+    .depth-2 .title { background: var(--navy) !important; border-color: var(--navy) !important; color: white !important; }
+    .depth-3 .title { background: var(--navy-mid) !important; border-color: var(--navy-mid) !important; color: white !important; }
+    .depth-4 .title { background: var(--teal) !important; border-color: var(--teal) !important; color: white !important; }
+    .depth-5 .title { background: var(--teal-mid) !important; border-color: var(--teal-mid) !important; color: white !important; }
+    .depth-6 .title { background: var(--slate) !important; border-color: var(--slate) !important; color: white !important; }
+    .depth-7 .title { background: var(--purple) !important; border-color: var(--purple) !important; color: white !important; }
+    .depth-8 .title { background: var(--amber) !important; border-color: var(--amber) !important; color: white !important; }
+
+    .orgchart .node:hover > .title {
+      filter: brightness(1.15);
+    }
+
+    /* Connector lines */
+    .orgchart .lines .downLine,
+    .orgchart .lines .topLine,
+    .orgchart .lines .rightLine,
+    .orgchart .lines .leftLine {
+      border-color: #A0AEC0 !important;
+    }
+
+    /* Collapse/expand toggle */
+    .orgchart .node .edge {
+      color: rgba(255,255,255,0.7) !important;
+    }
+
+    /* ── Loading / Error states ───────────────────────────────────── */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--red-dark);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading p {
+      font-size: 13px;
+      color: #718096;
+      letter-spacing: 0.04em;
+    }
+
+    #error-msg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 998;
+    }
+
+    #error-msg.visible { display: flex; }
+
+    #error-msg .err-box {
+      background: white;
+      border: 1px solid #FC8181;
+      border-radius: 8px;
+      padding: 24px 32px;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    #error-msg h3 { color: var(--red-dark); margin-bottom: 8px; font-size: 15px; }
+    #error-msg p  { color: #718096; font-size: 12px; line-height: 1.6; }
+    #error-msg code { background: #FFF5F5; color: var(--red-dark); padding: 2px 6px; border-radius: 3px; font-size: 11px; }
+
+    /* ── Page layout ──────────────────────────────────────────────── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Loading DOCC Activation Roster...</p>
+</div>
+
+<div id="error-msg">
+  <div class="err-box">
+    <h3>Unable to Load Data</h3>
+    <p id="error-detail">Could not connect to the SharePoint list.</p>
+    <p style="margin-top:10px">Make sure this file is hosted on your SharePoint site and that the list name in the configuration matches exactly.</p>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+
+  <div id="header">
+    <div>
+      <div class="subtitle">DISASTER OPERATIONS COORDINATION CENTER</div>
+      <h1>Activation Org Chart</h1>
+    </div>
+    <div id="toolbar">
+      <div id="activation-badge">Loading...</div>
+      <button class="btn" onclick="expandAll()">Expand All</button>
+      <button class="btn" onclick="collapseAll()">Collapse All</button>
+      <button class="btn" onclick="resetZoom()">Reset View</button>
+    </div>
+  </div>
+
+  <div id="statusbar">
+    <span><div class="dot"></div> Live Data</span>
+    <span id="stat-total">— positions</span>
+    <span id="stat-activated">— activated</span>
+    <span id="stat-vacant">— vacant</span>
+    <span id="stat-updated">Last refreshed: —</span>
+  </div>
+
+  <div id="legend">
+    <span style="font-size:10px; font-weight:600; color:#4A5568; margin-right:4px;">LEVELS:</span>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--red-dark)"></div>Director</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--red-mid)"></div>Deputy Director</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--navy)"></div>NAD</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--navy-mid)"></div>Branch</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--teal)"></div>Section</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--teal-mid)"></div>Unit</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--slate)"></div>Level 6</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--purple)"></div>Level 7</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--amber)"></div>Level 8</div>
+  </div>
+
+  <div id="chart-wrapper">
+    <div id="chart-container"></div>
+  </div>
+
+</div>
+
+<!-- jQuery (required by OrgChart) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- OrgChart plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/orgchart/5.0.0/js/jquery.orgchart.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  CONFIGURATION — update these values for your environment
+// ═══════════════════════════════════════════════════════════════════
+const CONFIG = {
+  // The base URL of your SharePoint site (no trailing slash)
+  // Example: "https://redcross.sharepoint.com/sites/DCS-Operations"
+  siteUrl: window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/').replace('/SiteAssets', '').replace('/Shared Documents', ''),
+
+  // Exact name of your SharePoint list
+  listName: "WatchRoster",
+
+  // Column internal names (check in List Settings > column name in URL if unsure)
+  columns: {
+    id:          "ID",
+    title:       "Title",
+    person:      "WatchOfficer",   // internal name — spaces become _x0020_
+    reportsTo:   "ReportstoID",  // internal name
+    status:      "Status",
+    section:     "Section",
+    function:    "Function",                   // "Function" is reserved, SP appends 0
+    sortOrder:   "SortOrder"
+  },
+
+  // The choice value for activated positions
+  activatedValue: "Activated",
+
+  // How many items to fetch per page (max 5000 for SharePoint REST)
+  pageSize: 500
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  GLOBALS
+// ═══════════════════════════════════════════════════════════════════
+let orgChartInstance = null;
+let allItems = [];
+
+// ═══════════════════════════════════════════════════════════════════
+//  FETCH DATA FROM SHAREPOINT REST API
+// ═══════════════════════════════════════════════════════════════════
+async function fetchData() {
+  const c = CONFIG.columns;
+  const fields = [c.id, c.title, c.person, c.reportsTo, c.status, c.section, c.function, c.sortOrder].join(',');
+  const filter = encodeURIComponent(`${c.status} eq '${CONFIG.activatedValue}'`);
+  const url = `${CONFIG.siteUrl}/_api/web/lists/getbytitle('${CONFIG.listName}')/items?$select=${fields}&$filter=${filter}&$top=${CONFIG.pageSize}&$orderby=${c.sortOrder} asc`;
+
+  const resp = await fetch(url, {
+    headers: {
+      'Accept': 'application/json;odata=verbose',
+      'Content-Type': 'application/json;odata=verbose'
+    },
+    credentials: 'same-origin'
+  });
+
+  if (!resp.ok) {
+    throw new Error(`SharePoint API returned ${resp.status}: ${resp.statusText}. URL tried: ${url}`);
+  }
+
+  const data = await resp.json();
+  return data.d.results;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BUILD NESTED JSON TREE FROM FLAT ID/PARENT-ID LIST
+// ═══════════════════════════════════════════════════════════════════
+function buildTree(items) {
+  const c = CONFIG.columns;
+  const map = {};
+  const roots = [];
+
+  // Index all items by ID
+  items.forEach(item => {
+    const personField = item[c.person];
+    const personName = personField
+      ? (personField.Title || personField.Name || personField.DisplayName || '')
+      : '';
+
+    map[item[c.id]] = {
+      id:        String(item[c.id]),
+      name:      item[c.title] || '(Untitled)',
+      title:     personName || '(Vacant)',
+      reportsTo: item[c.reportsTo],
+      section:   item[c.section] || '',
+      children:  []
+    };
+  });
+
+  // Build parent-child relationships
+  Object.values(map).forEach(node => {
+    const parentId = node.reportsTo;
+    if (parentId && map[parentId]) {
+      map[parentId].children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  // If multiple roots, wrap in a virtual root
+  if (roots.length === 0) {
+    throw new Error('No root nodes found. Check that some positions have no "Reports to ID" value (or 0).');
+  }
+
+  return roots.length === 1 ? roots[0] : {
+    id: 'virtual-root',
+    name: 'DOCC',
+    title: '',
+    children: roots
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  CALCULATE DEPTH RECURSIVELY (for CSS class coloring)
+// ═══════════════════════════════════════════════════════════════════
+function assignDepths(node, depth) {
+  node.depth = depth;
+  (node.children || []).forEach(child => assignDepths(child, depth + 1));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  RENDER ORG CHART
+// ═══════════════════════════════════════════════════════════════════
+function renderChart(treeData) {
+  $('#chart-container').empty();
+
+  orgChartInstance = $('#chart-container').orgchart({
+    data: treeData,
+    nodeTitle: 'name',
+    nodeContent: 'title',
+    pan: true,
+    zoom: true,
+    zoomInLimit: 2.5,
+    zoomOutLimit: 0.3,
+    collapsible: true,
+    visibleLevel: 3,    // show 3 levels expanded by default; users can expand more
+    createNode: function($node, data) {
+      // Apply depth-based color class
+      const depth = data.depth !== undefined ? data.depth : 0;
+      $node.addClass('depth-' + Math.min(depth, 8));
+
+      // Truncate long names
+      const titleEl = $node.find('.title');
+      const contentEl = $node.find('.content');
+      const name = data.name || '';
+      const person = data.title || '';
+      titleEl.attr('title', name).text(name.length > 26 ? name.substring(0, 24) + '…' : name);
+      contentEl.attr('title', person).text(person.length > 26 ? person.substring(0, 24) + '…' : person);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  UPDATE STATUS BAR
+// ═══════════════════════════════════════════════════════════════════
+function updateStats(items) {
+  const c = CONFIG.columns;
+  const total = items.length;
+  const vacant = items.filter(i => {
+    const p = i[c.person];
+    return !p || !p.Title;
+  }).length;
+  const activated = total - vacant;
+
+  $('#stat-total').text(`${total} positions`);
+  $('#stat-activated').text(`${activated} filled`);
+  $('#stat-vacant').text(`${vacant} vacant`);
+  $('#stat-updated').text(`Last refreshed: ${new Date().toLocaleTimeString()}`);
+
+  // Try to detect activation level from data
+  const levels = [...new Set(items.map(i => i[c.function]).filter(Boolean))];
+  $('#activation-badge').text(levels.length > 0 ? levels[0] : 'Active');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TOOLBAR ACTIONS
+// ═══════════════════════════════════════════════════════════════════
+function expandAll() {
+  $('#chart-container').find('.node').each(function() {
+    var $children = $(this).children('.children');
+    if ($children.hasClass('hidden')) {
+      $(this).children('.edge').trigger('click');
+    }
+  });
+}
+
+function collapseAll() {
+  $('#chart-container').find('.node').each(function() {
+    var $children = $(this).children('.children');
+    if (!$children.hasClass('hidden')) {
+      var $edge = $(this).children('.edge');
+      if ($edge.length) $edge.trigger('click');
+    }
+  });
+}
+
+function resetZoom() {
+  if (orgChartInstance) {
+    var $container = $('#chart-container');
+    $container.css('transform', '');
+    $container.css('-webkit-transform', '');
+  }
+  // Re-center
+  $('#chart-wrapper').scrollTop(0).scrollLeft(
+    Math.max(0, ($('#chart-container').width() - $('#chart-wrapper').width()) / 2)
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  MAIN INIT
+// ═══════════════════════════════════════════════════════════════════
+async function init() {
+  try {
+    const items = await fetchData();
+    allItems = items;
+
+    if (items.length === 0) {
+      throw new Error(`No activated positions found in the "${CONFIG.listName}" list. Check that the Status column value matches "${CONFIG.activatedValue}" exactly.`);
+    }
+
+    const tree = buildTree(items);
+    assignDepths(tree, 0);
+    updateStats(items);
+    renderChart(tree);
+
+    // Show app, hide loading
+    $('#loading').fadeOut(300, function() {
+      $('#app').show();
+      // Auto-scroll to center the root node
+      setTimeout(() => {
+        const wrapper = document.getElementById('chart-wrapper');
+        const container = document.getElementById('chart-container');
+        wrapper.scrollLeft = Math.max(0, (container.scrollWidth - wrapper.clientWidth) / 2);
+      }, 200);
+    });
+
+  } catch (err) {
+    console.error('OrgChart error:', err);
+    $('#loading').hide();
+    $('#error-detail').text(err.message);
+    $('#error-msg').addClass('visible');
+  }
+}
+
+// Kick off on DOM ready
+$(document).ready(init);
+</script>
+</body>
+</html>
