@@ -76,12 +76,22 @@
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
         linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
       background-size:40px 40px;opacity:.25;pointer-events:none}
-    #chart-inner{padding:40px;display:inline-block;min-width:100%;
+    #chart-inner{
+  padding:40px;
+  width:100%;
+  min-height:100%;
+  position:relative;
+  animation:fadeIn .4s ease-out;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
       min-height:100%;position:relative;animation:fadeIn .4s ease-out}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
     /* OrgChart nodes */
-    .orgchart{background:transparent!important}
+    .orgchart{background:transparent!important;margin:0 auto!important}
+    .orgchart>table{margin:0 auto!important}
     .orgchart table{border-spacing:14px!important}
     .orgchart .node{width:170px!important;cursor:default;transition:transform .15s}
     .orgchart .node:hover{transform:translateY(-2px)}
@@ -294,29 +304,13 @@ function updateStats(items) {
 }
 
 function centerChart() {
-  // First pass — quick
-  setTimeout(function() {
-    doCenter();
-  }, 600);
-  // Second pass — after full layout settles
-  setTimeout(function() {
-    doCenter();
-  }, 1500);
+  setTimeout(function() { doCenter(); }, 600);
+  setTimeout(function() { doCenter(); }, 1500);
 }
 
 function doCenter() {
   var wrapper = document.getElementById('chart-wrapper');
-  var container = document.getElementById('chart-container');
-  var inner = document.getElementById('chart-inner');
-  if (!wrapper || !container) return;
-  var table = container.querySelector('table');
-  if (table) {
-    var tableWidth = table.offsetWidth;
-    var wrapperWidth = wrapper.clientWidth;
-    var sidePad = Math.max(60, Math.floor((wrapperWidth - tableWidth) / 2));
-    inner.style.paddingLeft = sidePad + 'px';
-    inner.style.paddingRight = sidePad + 'px';
-  }
+  if (!wrapper) return;
   wrapper.scrollTop = 0;
   wrapper.scrollLeft = 0;
 }
