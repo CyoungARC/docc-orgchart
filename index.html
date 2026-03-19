@@ -413,7 +413,13 @@ function zoomOut() { zoom=Math.max(zoom-0.15,0.15); $('#chart').css({transform:'
 
 // ── Main ─────────────────────────────────────────────────────────
 $(function() {
-  var raw = param('data');
+  // Read raw data FIRST before anything can change the URL
+  var raw = null;
+  try {
+    var search = window.location.search;
+    var match = /[?&]data=([^&#]*)/.exec(search);
+    if (match) raw = decodeURIComponent(match[1].replace(/\+/g,' '));
+  } catch(e) { raw = null; }
 
   // No data — redirect to PowerApp after countdown
   if (!raw) {
@@ -434,7 +440,10 @@ $(function() {
     return;
   }
 
-  // Parse data from URL
+  // Clean URL immediately — raw is already saved above so this is safe
+  history.replaceState(null, '', window.location.pathname);
+
+  // Parse saved raw data
   try {
     allItems = JSON.parse(raw);
     if (!Array.isArray(allItems) || !allItems.length) throw new Error('Empty array.');
@@ -447,7 +456,6 @@ $(function() {
   try {
     var tree = buildTree(allItems);
     assignDepths(tree, 0);
-    history.replaceState(null, '', window.location.pathname);
     $('#loading').fadeOut(200, function(){
       $('#app').show();
       $('#zc').removeClass('hidden');
