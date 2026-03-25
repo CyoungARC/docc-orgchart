@@ -18,6 +18,8 @@
     html,body{height:100%;overflow:hidden}
     body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text)}
     #app{display:flex;flex-direction:column;height:100vh}
+
+    /* Header */
     #hdr{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;height:52px;display:flex;align-items:center;
       justify-content:space-between;flex-shrink:0;position:relative}
@@ -39,12 +41,21 @@
       margin-right:5px;animation:pulse 2s ease-in-out infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     .hr{display:flex;align-items:center;gap:6px}
+    .btn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;
+      letter-spacing:.06em;text-transform:uppercase;background:var(--surface2);
+      border:1px solid var(--border);color:var(--dim);padding:5px 12px;
+      border-radius:4px;cursor:pointer;transition:all .15s}
+    .btn:hover{background:var(--surface);color:var(--text);border-color:#555}
+
+    /* Legend */
     #leg{background:var(--surface);border-bottom:1px solid var(--border);
       padding:5px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
     .ll{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
     .li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
     .ls{width:10px;height:10px;border-radius:2px}
+
+    /* Tab bar */
     #tabs{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;display:flex;align-items:center;gap:2px;flex-shrink:0}
     .tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
@@ -53,35 +64,47 @@
       background:none;border-top:none;border-left:none;border-right:none}
     .tab:hover{color:var(--text)}
     .tab.active{color:var(--text);border-bottom-color:var(--accent)}
-    #panel-chart{flex:1;background:var(--bg);position:relative;display:block;overflow:hidden}
+
+    /* Chart panel */
+    #panel-chart{flex:1;overflow:auto;background:var(--bg);position:relative;display:flex;flex-direction:column}
     #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
         linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
-      background-size:40px 40px;opacity:.2;z-index:0}
-    #inner{padding:40px;text-align:center;position:relative;
-      animation:fi .4s ease-out;width:100%;height:100%;overflow:visible;z-index:1}
+      background-size:40px 40px;opacity:.2}
+
+    /* This is the key — flex centering of the orgchart */
+    #inner{
+      padding:40px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      min-width:100%;
+      min-height:100%;
+      position:relative;
+      animation:fi .4s ease-out;
+    }
     @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Table panel */
     #panel-table{flex:1;overflow:auto;background:var(--bg);display:none;padding:20px}
-    .orgchart{background:transparent!important;display:inline-block!important}
+
+    /* OrgChart overrides */
+    .orgchart{background:transparent!important}
     .orgchart table{border-spacing:14px!important}
-    .orgchart .node{width:200px!important;min-width:200px!important;max-width:200px!important;
-      transition:transform .15s;cursor:default;white-space:normal!important}
+    .orgchart .node{width:170px!important;transition:transform .15s;cursor:default}
     .orgchart .node:hover{transform:translateY(-2px)}
     .orgchart .node .title{
       font-family:'Barlow Condensed',sans-serif!important;font-size:12px!important;
       font-weight:700!important;letter-spacing:.03em!important;padding:7px 10px!important;
       border-radius:6px 6px 0 0!important;line-height:1.3!important;
       color:rgba(255,255,255,.95)!important;border:none!important;
-      text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:normal!important;
-      word-wrap:break-word!important;height:auto!important;min-height:unset!important;
-      overflow:visible!important}
+      text-shadow:0 1px 2px rgba(0,0,0,.3)}
     .orgchart .node .content{
       font-family:'Barlow',sans-serif!important;font-size:10px!important;
       padding:5px 10px!important;border-radius:0 0 6px 6px!important;
       color:var(--dim)!important;background:var(--surface2)!important;
       border:1px solid var(--border)!important;border-top:none!important;
-      min-height:24px!important;line-height:1.3!important;white-space:normal!important;
-      word-wrap:break-word!important;height:auto!important;overflow:visible!important}
+      min-height:24px!important;line-height:1.3!important}
     .d0 .title{background:linear-gradient(135deg,#6B1111,#8B1A1A)!important;box-shadow:0 2px 8px rgba(107,17,17,.5)}
     .d1 .title{background:linear-gradient(135deg,#992222,#B03030)!important;box-shadow:0 2px 8px rgba(153,34,34,.4)}
     .d2 .title{background:linear-gradient(135deg,#0F3460,#1A4A7A)!important;box-shadow:0 2px 8px rgba(15,52,96,.5)}
@@ -96,6 +119,8 @@
     .orgchart .lines .rightLine{border-right:1px solid #30363D!important}
     .orgchart .lines .leftLine{border-left:1px solid #30363D!important}
     .orgchart .node .edge{display:none!important}
+
+    /* Roster table */
     #roster-search{display:flex;align-items:center;gap:10px;margin-bottom:16px}
     #search-input{font-family:'Barlow',sans-serif;font-size:12px;background:var(--surface);
       border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:4px;
@@ -118,12 +143,15 @@
     #roster-table tbody tr:hover{background:var(--surface)}
     #roster-table td{padding:9px 14px;color:var(--text);vertical-align:middle}
     #roster-table td.vacant{color:var(--dim);font-style:italic}
-    #roster-table td.pos{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px}
+    #roster-table td.pos{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.02em}
     #roster-table td.sec{color:var(--dim);font-size:11px}
     #roster-table td.email a{color:#79C0FF;text-decoration:none;font-size:11px}
     #roster-table td.email a:hover{text-decoration:underline}
     #roster-table td.phone{font-size:11px;color:var(--dim)}
-    .dbadge{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+    .dbadge{display:inline-block;width:8px;height:8px;border-radius:2px;
+      margin-right:6px;vertical-align:middle;flex-shrink:0}
+
+    /* Loading */
     #loading{position:fixed;inset:0;background:var(--bg);display:flex;
       flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:18px}
     .slogo{width:52px;height:52px;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
@@ -133,14 +161,17 @@
     .sfill{height:100%;background:linear-gradient(90deg,var(--accent),#E74C3C);animation:lb 1.5s ease-in-out infinite}
     @keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
     .stxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+    /* Message */
     #msgbox{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:100}
     #msgbox.vis{display:flex}
     .mcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:30px 38px;max-width:500px;text-align:center}
     .micon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 14px}
     .mcard h3{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:var(--text);margin-bottom:8px}
     .mcard p{font-size:12px;color:var(--dim);line-height:1.7}
-    .mcard a{color:#79C0FF}
     .mcard code{display:block;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:10px;color:#79C0FF;text-align:left;margin-top:10px;line-height:1.6;word-break:break-all}
+
+    /* Zoom */
     #zc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:4px;z-index:50}
     #zc.hidden{display:none}
     .zb{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);color:var(--dim);
@@ -176,8 +207,11 @@
       </div>
       <div id="badge"><span class="dot"></span>ACTIVATED</div>
     </div>
-    <div class="hr"></div>
+    <div class="hr">
+      <button class="btn" onclick="window.print()">Print</button>
+    </div>
   </div>
+
   <div id="leg">
     <span class="ll">Levels:</span>
     <div class="li"><div class="ls" style="background:#6B1111"></div>Director</div>
@@ -191,15 +225,18 @@
     <div class="li"><div class="ls" style="background:#784212"></div>L8</div>
     <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
   </div>
+
   <div id="tabs">
     <button class="tab active" id="tab-chart" onclick="showTab('chart')">Org Chart</button>
     <button class="tab" id="tab-table" onclick="showTab('table')">Roster</button>
   </div>
+
   <div id="panel-chart">
     <div id="inner">
       <div id="chart"></div>
     </div>
   </div>
+
   <div id="panel-table">
     <div id="roster-search">
       <input type="text" id="search-input" placeholder="Search position, name, section..." oninput="filterTable()">
@@ -256,7 +293,8 @@ function showMsg(icon, title, body, code, err) {
 function buildTree(items) {
   var map = {}, roots = [];
   items.forEach(function(x) {
-    map[x.i] = {id:String(x.i), name:x.t, title:x.p, pid:x.r||0, children:[]};
+    map[x.i] = {id:String(x.i), name:(x.t||'(Untitled)').trim(),
+      title:(x.p||'(Vacant)').trim(), pid:x.r||0, children:[]};
   });
   Object.values(map).forEach(function(n) {
     if (n.pid && map[n.pid]) map[n.pid].children.push(n);
@@ -267,41 +305,29 @@ function buildTree(items) {
 }
 
 function assignDepths(n, d) {
-  n.depth = d; depthMap[n.id] = d;
+  n.depth = d;
+  depthMap[n.id] = d;
   (n.children||[]).forEach(function(c){ assignDepths(c, d+1); });
 }
 
 function renderChart(tree) {
   $('#chart').empty();
-  $('#chart').css({'width':'100%','height':'calc(100vh - 160px)','overflow':'visible'});
   $('#chart').orgchart({
-    data: tree, nodeTitle:'name', nodeContent:'title',
-    pan:true, zoom:true, zoomInLimit:2.5, zoomOutLimit:0.15, collapsible:false,
+    data: tree,
+    nodeTitle: 'name',
+    nodeContent: 'title',
+    pan: true,
+    zoom: true,
+    zoomInLimit: 2.5,
+    zoomOutLimit: 0.15,
+    collapsible: false,
     createNode: function($n, d) {
       $n.addClass('d' + Math.min(d.depth||0, 8));
-      $n.find('.title').text(d.name||'');
-      $n.find('.content').text(d.title||'');
+      var nm = d.name||'', p = d.title||'';
+      $n.find('.title').attr('title',nm).text(nm.length>28?nm.slice(0,26)+'…':nm);
+      $n.find('.content').attr('title',p).text(p.length>28?p.slice(0,26)+'…':p);
     }
   });
-  setTimeout(function() {
-    document.querySelectorAll('.orgchart .node').forEach(function(node) {
-      node.style.setProperty('width','200px','important');
-      node.style.setProperty('min-width','200px','important');
-      node.style.setProperty('height','auto','important');
-    });
-    document.querySelectorAll('.orgchart .node .title,.orgchart .node .content').forEach(function(el) {
-      el.style.setProperty('white-space','normal','important');
-      el.style.setProperty('word-wrap','break-word','important');
-      el.style.setProperty('overflow','visible','important');
-      el.style.setProperty('height','auto','important');
-      el.style.setProperty('text-overflow','unset','important');
-    });
-    document.querySelectorAll('.orgchart td').forEach(function(td) {
-      td.style.setProperty('height','auto','important');
-      td.style.setProperty('vertical-align','top','important');
-    });
-    centerView();
-  }, 500);
 }
 
 function renderTable(items) {
@@ -313,42 +339,42 @@ function renderTable(items) {
            (x.s||'').toLowerCase().indexOf(search)>-1 ||
            (x.e||'').toLowerCase().indexOf(search)>-1;
   });
-  filtered.sort(function(a,b) {
-    var va=a[sortCol]||'', vb=b[sortCol]||'';
-    if(sortCol==='so'){va=Number(va)||999;vb=Number(vb)||999;}
+  filtered.sort(function(a, b) {
+    var va = a[sortCol]||'', vb = b[sortCol]||'';
+    if (sortCol==='so'){va=Number(va)||999;vb=Number(vb)||999;}
     else{va=String(va).toLowerCase();vb=String(vb).toLowerCase();}
-    return sortAsc?(va<vb?-1:va>vb?1:0):(va<vb?1:va>vb?-1:0);
+    return sortAsc ? (va<vb?-1:va>vb?1:0) : (va<vb?1:va>vb?-1:0);
   });
   var tbody = document.getElementById('roster-body');
   tbody.innerHTML = '';
   filtered.forEach(function(x) {
     var d = depthMap[String(x.i)]||0;
-    var color = depthColors[Math.min(d,depthColors.length-1)];
+    var color = depthColors[Math.min(d, depthColors.length-1)];
     var isVacant = !x.p||x.p==='(Vacant)';
-    var emailHtml = x.e ? '<a href="mailto:'+x.e+'">'+esc(x.e)+'</a>' : '<span style="color:var(--dim)">--</span>';
+    var emailHtml = x.e ? '<a href="mailto:'+x.e+'">'+escHtml(x.e)+'</a>' : '<span style="color:var(--dim)">—</span>';
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td class="pos"><span class="dbadge" style="background:'+color+'"></span>'+esc(x.t||'')+'</td>'+
-      '<td class="sec">'+esc(x.s||'--')+'</td>'+
-      '<td class="'+(isVacant?'vacant':'')+'">'+esc(x.p||'(Vacant)')+'</td>'+
-      '<td class="phone">'+esc(x.ph||'--')+'</td>'+
+      '<td class="pos"><span class="dbadge" style="background:'+color+'"></span>'+escHtml(x.t||'')+'</td>'+
+      '<td class="sec">'+escHtml(x.s||'—')+'</td>'+
+      '<td class="'+(isVacant?'vacant':'')+'">'+escHtml(x.p||'(Vacant)')+'</td>'+
+      '<td class="phone">'+escHtml(x.ph||'—')+'</td>'+
       '<td class="email">'+emailHtml+'</td>';
     tbody.appendChild(tr);
   });
   document.getElementById('row-count').textContent = filtered.length+' of '+items.length+' positions';
 }
 
-function esc(s) {
+function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function filterTable(){ renderTable(allItems); }
 
 function sortTable(col) {
-  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=true;}
+  if (sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=true;}
   document.querySelectorAll('#roster-table th').forEach(function(th){
     th.classList.remove('sorted');
-    var a=th.querySelector('.sort-arrow'); if(a)a.textContent='↕';
+    var a=th.querySelector('.sort-arrow'); if(a) a.textContent='↕';
   });
   var th=document.getElementById('th-'+col);
   if(th){th.classList.add('sorted');var a=th.querySelector('.sort-arrow');if(a)a.textContent=sortAsc?'↑':'↓';}
@@ -356,8 +382,8 @@ function sortTable(col) {
 }
 
 function showTab(name) {
-  if(name==='chart'){
-    document.getElementById('panel-chart').style.display='block';
+  if (name==='chart') {
+    document.getElementById('panel-chart').style.display='flex';
     document.getElementById('panel-table').style.display='none';
     document.getElementById('tab-chart').classList.add('active');
     document.getElementById('tab-table').classList.remove('active');
@@ -372,15 +398,18 @@ function showTab(name) {
   }
 }
 
+// THE KEY CENTERING FIX — reset the library's own transform to zero
 function centerView() {
-  var chart = document.querySelector('.orgchart');
-  if (!chart) return;
-  chart.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
+  setTimeout(function() {
+    var chart = document.querySelector('.orgchart');
+    if (!chart) return;
+    chart.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
+  }, 800);
 }
 
 function resetView() {
   zoom = 1.0;
-  $('#chart').css({transform:'','transform-origin':''});
+  $('#chart').css({transform:'','-webkit-transform':''});
   centerView();
 }
 
@@ -389,33 +418,18 @@ function zoomOut() { zoom=Math.max(zoom-0.15,0.15); $('#chart').css({transform:'
 
 $(function() {
   var raw = param('data');
-
   if (!raw) {
-    var countdown = 5;
-    showMsg('📋', 'Redirecting to DOCC App',
-      'No roster data found. Redirecting you to the DOCC PowerApp in <strong id="countdown">5</strong> seconds...<br><br>' +
-      '<a href="https://rdcrss.org/docc">Click here if you are not redirected automatically</a>',
-      null, false);
-    var timer = setInterval(function() {
-      countdown--;
-      var el = document.getElementById('countdown');
-      if (el) el.textContent = countdown;
-      if (countdown <= 0) {
-        clearInterval(timer);
-        window.location.href = 'https://rdcrss.org/docc';
-      }
-    }, 1000);
+    showMsg('📋','No Roster Data','Open this page using the <strong>View Org Chart</strong> button in PowerApps.',
+      'https://cyoungarc.github.io/docc-orgchart/?data=[encoded JSON]',false);
     return;
   }
-
   try {
     allItems = JSON.parse(raw);
-    if (!Array.isArray(allItems) || !allItems.length) throw new Error('Empty array.');
+    if (!Array.isArray(allItems)||!allItems.length) throw new Error('Empty array.');
   } catch(e) {
     showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',null,true);
     return;
   }
-
   try {
     var tree = buildTree(allItems);
     assignDepths(tree, 0);
@@ -423,9 +437,10 @@ $(function() {
       $('#app').show();
       $('#zc').removeClass('hidden');
       renderChart(tree);
+      centerView();
     });
   } catch(e) {
-    showMsg('⚠️','Error', e.message, null, true);
+    showMsg('⚠️','Error',e.message,null,true);
   }
 });
 </script>
