@@ -358,7 +358,7 @@ function getFunctionLabel(fn, level) {
 function buildTree(items) {
   var map = {}, roots = [];
   items.forEach(function(x) {
-    map[x.i] = {id:String(x.i), name:x.t, title:x.p, fn:x.f||'', pid:x.r||0, isAssistant:(x.a===1||x.a==='1'), children:[]};
+    map[x.i] = {id:String(x.i), name:x.t, title:x.p, fn:x.f||'', pid:x.r||0, isAssistant:(x.a===1||x.a==='1'||x.a===true||x.a==='true'), children:[]};
   });
   Object.values(map).forEach(function(n) {
     if (n.pid && map[n.pid]) map[n.pid].children.push(n);
