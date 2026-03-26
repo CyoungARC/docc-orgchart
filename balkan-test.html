@@ -318,7 +318,7 @@ function renderChart(items) {
 
   // Connector lines — must use exact BALKAN path syntax
   OrgChart.templates.docc.link =
-    '<path stroke="#555E6B" stroke-width="1px" fill="none" data-l-id="[{id}][{child-id}]" d="M{xa},{ya} C{xb},{yb} {xc},{yc} {xd},{yd}" />';
+    '<path stroke="#555E6B" stroke-width="1px" fill="none" data-l-id="[{id}][{child-id}]" d="M{xa},{ya} L{xa},{yb} L{xd},{yb} L{xd},{yd}" />';
   OrgChart.templates.docc.pointer = '';
 
   // Build node array
