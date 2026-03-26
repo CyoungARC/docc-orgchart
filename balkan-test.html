@@ -470,11 +470,18 @@ window.addEventListener('load', function() {
 
   document.getElementById('load-status').textContent = 'Building org chart...';
 
-  try {
+try {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     document.getElementById('zc').classList.remove('hidden');
-    renderChart(allItems);
+    // Give browser one frame to resolve flex layout before BALKAN measures the container
+    setTimeout(function() {
+      var panel = document.getElementById('panel-chart');
+      var tree = document.getElementById('tree');
+      tree.style.width = panel.offsetWidth + 'px';
+      tree.style.height = panel.offsetHeight + 'px';
+      renderChart(allItems);
+    }, 50);
   } catch(e) {
     showMsg('⚠️', 'Render Error', e.message + '<br><br><small>' + (e.stack || '') + '</small>', true);
   }
