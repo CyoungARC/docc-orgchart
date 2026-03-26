@@ -15,8 +15,6 @@
     html,body{height:100%;overflow:hidden}
     body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text)}
     #app{display:flex;flex-direction:column;height:100vh}
-
-    /* Header */
     #hdr{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;height:52px;display:flex;align-items:center;
       justify-content:space-between;flex-shrink:0;position:relative}
@@ -37,33 +35,25 @@
     .dot{width:6px;height:6px;border-radius:50%;background:#2ECC71;display:inline-block;
       margin-right:5px;animation:pulse 2s ease-in-out infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-    /* Level badge */
     #level-badge{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;
       letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;
       border-radius:4px;border:1px solid;display:flex;align-items:center;gap:6px}
     #level-badge.level1{background:rgba(192,57,43,.2);border-color:rgba(192,57,43,.5);color:#E74C3C}
     #level-badge.level2{background:rgba(212,172,13,.2);border-color:rgba(212,172,13,.5);color:#F4D03F}
     #level-badge.level3{background:rgba(30,132,73,.2);border-color:rgba(30,132,73,.5);color:#2ECC71}
-    .level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .level1 .level-dot{background:#E74C3C;box-shadow:0 0 6px #E74C3C}
-    .level2 .level-dot{background:#F4D03F;box-shadow:0 0 6px #F4D03F}
-    .level3 .level-dot{background:#2ECC71;box-shadow:0 0 6px #2ECC71}
-
-    /* Bookmark warning */
+    .level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+    .level1 .level-dot{background:#E74C3C}
+    .level2 .level-dot{background:#F4D03F}
+    .level3 .level-dot{background:#2ECC71}
     #bookmark-warning{background:rgba(212,172,13,.1);border-bottom:1px solid rgba(212,172,13,.3);
       padding:5px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0}
     #bookmark-warning span{font-size:11px;color:#F4D03F;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
-
-    /* Legend */
     #leg{background:var(--surface);border-bottom:1px solid var(--border);
       padding:5px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
     .ll{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
     .li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
     .ls{width:10px;height:10px;border-radius:2px}
-
-    /* Tabs */
     #tabs{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;display:flex;align-items:center;gap:2px;flex-shrink:0}
     .tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
@@ -72,73 +62,19 @@
       background:none;border-top:none;border-left:none;border-right:none}
     .tab:hover{color:var(--text)}
     .tab.active{color:var(--text);border-bottom-color:var(--accent)}
-
-    /* Chart panel */
     #panel-chart{flex:1;background:var(--bg);position:relative;display:block;overflow:hidden}
     #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
         linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
       background-size:40px 40px;opacity:.2;z-index:0}
     #tree{width:100%;height:100%;position:relative;z-index:1}
-
-    /* Table panel */
     #panel-table{flex:1;overflow:auto;background:var(--bg);display:none;padding:20px}
-
-    /* BALKAN node customization via CSS */
-    .orgchart-container{background:transparent!important}
-
-    /* Custom node template styles */
-    .docc-node{
-      border-radius:6px;
-      overflow:hidden;
-      box-shadow:0 2px 8px rgba(0,0,0,.4);
-      font-family:'Barlow',sans-serif;
-      min-width:160px;
-      max-width:180px;
-    }
-    .docc-node-title{
-      font-family:'Barlow Condensed',sans-serif;
-      font-size:12px;font-weight:700;
-      padding:7px 10px;
-      color:rgba(255,255,255,.95);
-      text-shadow:0 1px 2px rgba(0,0,0,.3);
-      line-height:1.3;
-      word-wrap:break-word;
-    }
-    .docc-node-content{
-      background:var(--surface2);
-      padding:5px 10px;
-      font-size:10px;
-      color:var(--dim);
-      line-height:1.4;
-      border-top:none;
-      word-wrap:break-word;
-    }
-    .fn-tag{
-      display:inline-block;font-size:9px;
-      font-family:'Barlow Condensed',sans-serif;
-      font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-      padding:1px 5px;border-radius:2px;margin-top:3px;
-      background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);
-      border:1px solid rgba(255,255,255,.2);
-    }
-    .asst-tag{
-      display:inline-block;font-size:9px;
-      font-family:'Barlow Condensed',sans-serif;
-      font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-      padding:1px 5px;border-radius:2px;margin-top:3px;
-      background:rgba(255,200,0,.2);color:#F4D03F;
-      border:1px solid rgba(255,200,0,.3);
-    }
-
-    /* Roster table */
     #roster-search{display:flex;align-items:center;gap:10px;margin-bottom:16px}
     #search-input{font-family:'Barlow',sans-serif;font-size:12px;background:var(--surface);
       border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:4px;
       width:280px;outline:none}
     #search-input::placeholder{color:var(--dim)}
-    #row-count{font-size:11px;color:var(--dim);margin-left:auto;
-      font-family:'Barlow Condensed',sans-serif}
+    #row-count{font-size:11px;color:var(--dim);margin-left:auto;font-family:'Barlow Condensed',sans-serif}
     #roster-table{width:100%;border-collapse:collapse;font-size:12px}
     #roster-table thead tr{background:var(--surface);position:sticky;top:0;z-index:5}
     #roster-table th{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
@@ -157,9 +93,6 @@
     #roster-table td.email a{color:#79C0FF;text-decoration:none;font-size:11px}
     #roster-table td.email a:hover{text-decoration:underline}
     #roster-table td.phone{font-size:11px;color:var(--dim)}
-    .dbadge{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
-
-    /* Loading */
     #loading{position:fixed;inset:0;background:var(--bg);display:flex;
       flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:18px}
     .slogo{width:52px;height:52px;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
@@ -169,8 +102,6 @@
     .sfill{height:100%;background:linear-gradient(90deg,var(--accent),#E74C3C);animation:lb 1.5s ease-in-out infinite}
     @keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
     .stxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-
-    /* Message */
     #msgbox{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:100}
     #msgbox.vis{display:flex}
     .mcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:30px 38px;max-width:500px;text-align:center}
@@ -178,8 +109,6 @@
     .mcard h3{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
     .mcard p{font-size:12px;color:var(--dim);line-height:1.7}
     .mcard a{color:#79C0FF}
-
-    /* Zoom */
     #zc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:4px;z-index:50}
     #zc.hidden{display:none}
     .zb{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);color:var(--dim);
@@ -210,7 +139,7 @@
       <div class="hdiv"></div>
       <div>
         <div class="hsub">Disaster Operations Coordination Center</div>
-        <div class="htitle">Activation Org Chart <span style="font-size:11px;color:#F4D03F;margin-left:8px">BALKAN TEST</span></div>
+        <div class="htitle">Activation Org Chart <span style="font-size:11px;color:#F4D03F;margin-left:8px">▶ BALKAN TEST</span></div>
       </div>
       <div id="badge"><span class="dot"></span>ACTIVATED</div>
       <div id="level-badge" class="level3">
@@ -235,7 +164,7 @@
     <div class="li"><div class="ls" style="background:#0E6655"></div>Unit</div>
     <div class="li"><div class="ls" style="background:#2C3E50"></div>L6</div>
     <div class="li"><div class="ls" style="background:#4A235A"></div>L7+</div>
-    <div class="li"><div class="ls" style="background:#F4D03F;width:14px;height:14px;border-radius:3px;border:1px solid rgba(244,208,63,.5)"></div>Assistant</div>
+    <div class="li"><div class="ls" style="background:#F4D03F;border:1px dashed rgba(244,208,63,.5)"></div>Assistant</div>
     <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
   </div>
 
@@ -274,7 +203,6 @@
   <button class="zb" onclick="fitScreen()" style="font-size:11px">⊕</button>
 </div>
 
-<!-- BALKAN OrgChart JS via CDN -->
 <script src="https://cdn.balkan.app/orgchart.js"></script>
 <script>
 
@@ -284,13 +212,11 @@ var sortCol = 'so';
 var sortAsc = true;
 var chart = null;
 
-// Depth colors matching existing design
 var depthColors = [
   '#6B1111','#992222','#0F3460','#16497A',
   '#0B5345','#0E6655','#2C3E50','#4A235A','#784212'
 ];
 
-// Functions with Watch Officer / Duty Officer logic
 var dualFunctions = ['Duty Officers / Watch Officers','Duty Officer / Watch Officer'];
 
 function param(n) {
@@ -299,7 +225,7 @@ function param(n) {
 }
 
 function showMsg(icon, title, body, err) {
-  $('#loading').hide();
+  document.getElementById('loading').style.display = 'none';
   document.getElementById('micon').innerHTML = icon;
   document.getElementById('micon').style.background = err ? 'rgba(192,57,43,.15)' : 'rgba(22,73,122,.15)';
   document.getElementById('micon').style.border = err ? '1px solid rgba(192,57,43,.3)' : '1px solid rgba(22,73,122,.3)';
@@ -324,14 +250,11 @@ function getFunctionLabel(fn, level) {
   return fn;
 }
 
-// Build BALKAN-format nodes from flat item array
-// BALKAN uses: id, pid, tags for assistant
-function buildBalkanNodes(items) {
-  // Calculate depth for each node for color assignment
+// Calculate depth for each node
+function calcDepths(items) {
   var depthMap = {};
   var parentMap = {};
   items.forEach(function(x) { parentMap[x.i] = x.r || 0; });
-
   function getDepth(id) {
     if (depthMap[id] !== undefined) return depthMap[id];
     var pid = parentMap[id];
@@ -340,95 +263,119 @@ function buildBalkanNodes(items) {
     return depthMap[id];
   }
   items.forEach(function(x) { getDepth(x.i); });
+  return depthMap;
+}
 
-  return items.map(function(x) {
+function renderChart(items) {
+  var depthMap = calcDepths(items);
+
+  // Build one SVG template per depth level
+  // BALKAN templates use SVG with {field_X} placeholders
+  var NODE_W = 200;
+  var TITLE_H = 44;
+  var CONTENT_H = 36;
+  var NODE_H = TITLE_H + CONTENT_H;
+  var CORNER = 6;
+
+  // Register a template for each depth color
+  depthColors.forEach(function(color, d) {
+    var tplName = 'docc_d' + d;
+    OrgChart.templates[tplName] = {
+      defs: '',
+      size: [NODE_W, NODE_H],
+      mini_size: [NODE_W, NODE_H],
+      // Connector line color
+      svg: '<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}"></svg>',
+      link: '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />',
+      connector: '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />',
+      // Node shape: colored title bar + dark content area
+      node:
+        '<rect x="0" y="0" width="' + NODE_W + '" height="' + NODE_H + '" rx="' + CORNER + '" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
+        '<rect x="0" y="0" width="' + NODE_W + '" height="' + TITLE_H + '" rx="' + CORNER + '" fill="' + color + '"/>' +
+        '<rect x="0" y="' + (TITLE_H - CORNER) + '" width="' + NODE_W + '" height="' + CORNER + '" fill="' + color + '"/>' +
+        // Title text
+        '<text x="10" y="16" width="' + (NODE_W-20) + '" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.95);text-shadow:none" dominant-baseline="auto">{val_t}</text>' +
+        // Person text
+        '<text x="10" y="' + (TITLE_H + 14) + '" width="' + (NODE_W-20) + '" style="font-size:10px;font-family:Barlow,sans-serif;fill:#8B949E" dominant-baseline="auto">{val_p}</text>' +
+        // Function text
+        '<text x="10" y="' + (TITLE_H + 27) + '" width="' + (NODE_W-20) + '" style="font-size:9px;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.6);font-weight:600;letter-spacing:0.05em" dominant-baseline="auto">{val_f}</text>',
+      field_val_t: '<text style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.95)" x="10" y="16" width="' + (NODE_W-20) + '">{val}</text>',
+      field_val_p: '<text style="font-size:10px;font-family:Barlow,sans-serif;fill:#8B949E" x="10" y="' + (TITLE_H + 14) + '" width="' + (NODE_W-20) + '">{val}</text>',
+      field_val_f: '<text style="font-size:9px;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.6);font-weight:600" x="10" y="' + (TITLE_H + 27) + '" width="' + (NODE_W-20) + '">{val}</text>'
+    };
+
+    // Assistant variant — gold dashed border
+    var asstName = 'docc_d' + d + '_asst';
+    OrgChart.templates[asstName] = Object.assign({}, OrgChart.templates[tplName]);
+    OrgChart.templates[asstName].node =
+      '<rect x="1" y="1" width="' + (NODE_W-2) + '" height="' + (NODE_H-2) + '" rx="' + CORNER + '" fill="none" stroke="#F4D03F" stroke-width="1.5" stroke-dasharray="4,3"/>' +
+      '<rect x="0" y="0" width="' + NODE_W + '" height="' + NODE_H + '" rx="' + CORNER + '" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
+      '<rect x="0" y="0" width="' + NODE_W + '" height="' + TITLE_H + '" rx="' + CORNER + '" fill="' + color + '"/>' +
+      '<rect x="0" y="' + (TITLE_H - CORNER) + '" width="' + NODE_W + '" height="' + CORNER + '" fill="' + color + '"/>' +
+      '<text x="10" y="16" width="' + (NODE_W-20) + '" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.95)" dominant-baseline="auto">{val_t}</text>' +
+      '<text x="10" y="' + (TITLE_H + 14) + '" width="' + (NODE_W-20) + '" style="font-size:10px;font-family:Barlow,sans-serif;fill:#8B949E" dominant-baseline="auto">{val_p}</text>' +
+      '<text x="10" y="' + (TITLE_H + 27) + '" width="' + (NODE_W-20) + '" style="font-size:9px;font-family:Barlow Condensed,sans-serif;fill:#F4D03F;font-weight:600;letter-spacing:0.05em" dominant-baseline="auto">ASST · {val_f}</text>';
+  });
+
+  // Build node data for BALKAN
+  var nodes = items.map(function(x) {
     var depth = depthMap[x.i] || 0;
-    var color = depthColors[Math.min(depth, depthColors.length-1)];
-    var fnLabel = getFunctionLabel(x.f||'', activationLevel);
     var isAssistant = (x.a === 1 || x.a === '1' || x.a === true || x.a === 'true');
+    var fnLabel = getFunctionLabel(x.f || '', activationLevel);
+    var tplName = 'docc_d' + Math.min(depth, depthColors.length - 1) + (isAssistant ? '_asst' : '');
+    var personDisplay = (x.p && x.p !== '(Vacant)') ? x.p : '(Vacant)';
 
-    // Build custom HTML template for the node
-    var titleHtml = '<div class="docc-node-title" style="background:' + color + '">' +
-      esc(x.t||'') + '</div>';
-    var contentLines = esc(x.p || '(Vacant)');
-    if (fnLabel) contentLines += '<br><span class="fn-tag">' + esc(fnLabel) + '</span>';
-    if (isAssistant) contentLines += '<br><span class="asst-tag">ASST</span>';
-    var contentHtml = '<div class="docc-node-content">' + contentLines + '</div>';
+    // Truncate long strings for SVG
+    var titleDisplay = (x.t || '').length > 22 ? (x.t || '').substring(0, 22) + '…' : (x.t || '');
+    var personShort = personDisplay.length > 24 ? personDisplay.substring(0, 24) + '…' : personDisplay;
 
     var node = {
       id: x.i,
-      pid: x.r || undefined,
-      name: x.t || '',
-      person: x.p || '(Vacant)',
-      fn: fnLabel,
-      section: x.s || '',
-      phone: x.ph || '',
-      email: x.e || '',
-      sortOrder: x.so || 999,
-      depth: depth,
-      color: color,
-      // BALKAN template fields
-      field_0: x.t || '',
-      field_1: x.p || '(Vacant)',
-      // Custom HTML
-      nodeTemplate: titleHtml + contentHtml
+      pid: (x.r && x.r !== 0) ? x.r : undefined,
+      val_t: titleDisplay,
+      val_p: personShort,
+      val_f: fnLabel,
+      // Keep full data for roster table
+      _t: x.t, _p: x.p, _s: x.s, _ph: x.ph, _e: x.e, _f: x.f,
+      _so: x.so, _a: x.a,
+      template: tplName
     };
 
-    // Mark as assistant using BALKAN tags
-    if (isAssistant) {
-      node.tags = ['assistant'];
-    }
+    if (isAssistant) node.tags = ['assistant'];
 
     return node;
   });
-}
 
-function renderChart(nodes) {
-  var treeEl = document.getElementById('tree');
-
-  // Define custom template using BALKAN's template system
-  OrgChart.templates.docc = Object.assign({}, OrgChart.templates.ana);
-  OrgChart.templates.docc.size = [180, 70];
-  OrgChart.templates.docc.node = '<foreignObject x="0" y="0" width="180" height="150" style="overflow:visible">' +
-    '<div xmlns="http://www.w3.org/1999/xhtml" class="docc-node">' +
-    '{nodeTemplate}' +
-    '</div>' +
-    '</foreignObject>';
-  OrgChart.templates.docc.field_0 = '';
-  OrgChart.templates.docc.field_1 = '';
-
-  // Assistant template — gold border
-  OrgChart.templates.docc_assistant = Object.assign({}, OrgChart.templates.docc);
-  OrgChart.templates.docc_assistant.node = '<foreignObject x="0" y="0" width="180" height="150" style="overflow:visible">' +
-    '<div xmlns="http://www.w3.org/1999/xhtml" class="docc-node" style="outline:2px solid rgba(244,208,63,.5);outline-offset:2px">' +
-    '{nodeTemplate}' +
-    '</div>' +
-    '</foreignObject>';
-
-  chart = new OrgChart(treeEl, {
-    template: 'docc',
+  // Register assistant tag
+  var chartConfig = {
+    template: 'docc_d0',
     tags: {
       assistant: {
-        template: 'docc_assistant'
+        isAssistant: true
       }
     },
     nodeBinding: {
-      nodeTemplate: 'nodeTemplate'
+      val_t: 'val_t',
+      val_p: 'val_p',
+      val_f: 'val_f'
     },
     enableDragDrop: false,
     mouseScrool: OrgChart.action.zoom,
-    nodes: nodes,
     assistantSeparation: 80,
-    levelSeparation: 50,
+    levelSeparation: 60,
     siblingSeparation: 20,
     subtreeSeparation: 30,
-    padding: 40
-  });
+    padding: 40,
+    nodes: nodes
+  };
+
+  chart = new OrgChart(document.getElementById('tree'), chartConfig);
 }
 
 // Roster table
 function renderTable(items) {
-  var search = (document.getElementById('search-input').value||'').toLowerCase();
+  var search = (document.getElementById('search-input').value || '').toLowerCase();
+  var depthMap = calcDepths(items);
   var filtered = items.filter(function(x) {
     if (!search) return true;
     return (x.t||'').toLowerCase().indexOf(search)>-1 ||
@@ -445,24 +392,24 @@ function renderTable(items) {
   var tbody = document.getElementById('roster-body');
   tbody.innerHTML = '';
   filtered.forEach(function(x) {
-    var depth = 0;
-    var color = depthColors[0];
+    var depth = depthMap[x.i] || 0;
+    var color = depthColors[Math.min(depth, depthColors.length-1)];
     var fnLabel = getFunctionLabel(x.f||'', activationLevel);
-    var isVacant = !x.p||x.p==='(Vacant)';
-    var emailHtml = x.e ? '<a href="mailto:'+x.e+'">'+esc(x.e)+'</a>' : '<span style="color:var(--dim)">--</span>';
+    var isVacant = !x.p || x.p === '(Vacant)';
     var isAssist = (x.a===1||x.a==='1'||x.a===true||x.a==='true');
+    var emailHtml = x.e ? '<a href="mailto:'+x.e+'">'+esc(x.e)+'</a>' : '<span style="color:var(--dim)">--</span>';
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td class="pos">'+
-        (isAssist ? '<span style="color:#F4D03F;font-size:9px;font-family:Barlow Condensed;font-weight:700;margin-right:4px">ASST</span>' : '')+
-        esc(x.t||'')+(fnLabel?'<br><span style="font-size:10px;color:var(--dim)">'+esc(fnLabel)+'</span>':'')+'</td>'+
+      '<td class="pos"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle;background:'+color+'"></span>' +
+      (isAssist ? '<span style="color:#F4D03F;font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:700;margin-right:4px">ASST</span>' : '') +
+      esc(x.t||'') + (fnLabel ? '<br><span style="font-size:10px;color:var(--dim)">'+esc(fnLabel)+'</span>' : '') + '</td>' +
       '<td class="sec">'+esc(x.s||'--')+'</td>'+
       '<td class="'+(isVacant?'vacant':'')+'">'+esc(x.p||'(Vacant)')+'</td>'+
       '<td class="phone">'+esc(x.ph||'--')+'</td>'+
       '<td class="email">'+emailHtml+'</td>';
     tbody.appendChild(tr);
   });
-  document.getElementById('row-count').textContent = filtered.length+' of '+items.length+' positions';
+  document.getElementById('row-count').textContent = filtered.length + ' of ' + items.length + ' positions';
 }
 
 function esc(s) {
@@ -503,7 +450,6 @@ function zoomIn()  { if(chart) chart.zoom(true); }
 function zoomOut() { if(chart) chart.zoom(false); }
 function fitScreen(){ if(chart) chart.fit(); }
 
-// Main
 window.addEventListener('load', function() {
   var raw = param('data');
   var level = param('level');
@@ -512,8 +458,7 @@ window.addEventListener('load', function() {
     var countdown = 5;
     showMsg('📋', 'Redirecting to DOCC App',
       'No roster data found. Redirecting you to the DOCC PowerApp in <strong id="countdown">5</strong> seconds...<br><br>' +
-      '<a href="https://rdcrss.org/docc">Click here if you are not redirected automatically</a>',
-      false);
+      '<a href="https://rdcrss.org/docc">Click here if you are not redirected automatically</a>', false);
     var timer = setInterval(function() {
       countdown--;
       var el = document.getElementById('countdown');
@@ -530,16 +475,15 @@ window.addEventListener('load', function() {
     allItems = JSON.parse(raw);
     if (!Array.isArray(allItems) || !allItems.length) throw new Error('Empty array.');
   } catch(e) {
-    showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',true);
+    showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>', true);
     return;
   }
 
   try {
-    var nodes = buildBalkanNodes(allItems);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     document.getElementById('zc').classList.remove('hidden');
-    renderChart(nodes);
+    renderChart(allItems);
   } catch(e) {
     showMsg('⚠️','Render Error', e.message, true);
   }
