@@ -134,6 +134,13 @@
     .orgchart .lines .rightLine{border-right:1px solid #30363D!important}
     .orgchart .lines .leftLine{border-left:1px solid #30363D!important}
     .orgchart .node .edge{display:none!important}
+    .assistant-node .title{
+  border-left:3px solid rgba(255,255,255,.4)!important;
+}
+.assistant-node .content{
+  border-left:3px solid var(--border)!important;
+  border-style:dashed!important;
+}
 
     /* Function tag inside node */
     .fn-tag{
@@ -351,7 +358,7 @@ function getFunctionLabel(fn, level) {
 function buildTree(items) {
   var map = {}, roots = [];
   items.forEach(function(x) {
-    map[x.i] = {id:String(x.i), name:x.t, title:x.p, fn:x.f||'', pid:x.r||0, children:[]};
+    map[x.i] = {id:String(x.i), name:x.t, title:x.p, fn:x.f||'', pid:x.r||0, isAssistant:(x.a===1||x.a==='1'), children:[]};
   });
   Object.values(map).forEach(function(n) {
     if (n.pid && map[n.pid]) map[n.pid].children.push(n);
@@ -374,6 +381,7 @@ function renderChart(tree) {
     pan:true, zoom:true, zoomInLimit:2.5, zoomOutLimit:0.15, collapsible:false,
     createNode: function($n, d) {
       $n.addClass('d' + Math.min(d.depth||0, 8));
+      if (d.isAssistant) $n.addClass('assistant-node');
       $n.find('.title').text(d.name||'');
 
       // Build content: person name + function tag if applicable
