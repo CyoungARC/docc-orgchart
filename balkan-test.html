@@ -62,12 +62,13 @@
       background:none;border-top:none;border-left:none;border-right:none}
     .tab:hover{color:var(--text)}
     .tab.active{color:var(--text);border-bottom-color:var(--accent)}
-    #panel-chart{flex:1;background:var(--bg);position:relative;display:block;overflow:hidden}
+    /* CRITICAL: BALKAN needs explicit pixel dimensions on the container */
+    #panel-chart{flex:1;background:var(--bg);position:relative;overflow:hidden}
     #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
         linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
       background-size:40px 40px;opacity:.2;z-index:0}
-    #tree{width:100%;height:100%;position:relative;z-index:1}
+    #tree{position:absolute;inset:0;}
     #panel-table{flex:1;overflow:auto;background:var(--bg);display:none;padding:20px}
     #roster-search{display:flex;align-items:center;gap:10px;margin-bottom:16px}
     #search-input{font-family:'Barlow',sans-serif;font-size:12px;background:var(--surface);
@@ -121,7 +122,7 @@
 <div id="loading">
   <div class="slogo">ARC</div>
   <div class="sbar"><div class="sfill"></div></div>
-  <div class="stxt" id="load-status">Loading BALKAN Library...</div>
+  <div class="stxt" id="load-status">Loading...</div>
 </div>
 
 <div id="msgbox">
@@ -162,7 +163,7 @@
     <div class="li"><div class="ls" style="background:#0E6655"></div>Unit</div>
     <div class="li"><div class="ls" style="background:#2C3E50"></div>L6</div>
     <div class="li"><div class="ls" style="background:#4A235A"></div>L7+</div>
-    <div class="li"><div class="ls" style="background:transparent;border:1px dashed #F4D03F"></div><span style="color:#F4D03F">Assistant</span></div>
+    <div class="li"><div class="ls" style="background:transparent;border:1px dashed #F4D03F;width:10px;height:10px;border-radius:2px"></div><span style="color:#F4D03F">Assistant</span></div>
     <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
   </div>
   <div id="tabs">
@@ -214,6 +215,9 @@ var depthColors = [
 
 var dualFunctions = ['Duty Officers / Watch Officers','Duty Officer / Watch Officer'];
 
+// Store depth map globally so node function can access it
+var globalDepthMap = {};
+
 function param(n) {
   var r = new RegExp('[?&]' + n + '=([^&#]*)').exec(location.href);
   return r ? decodeURIComponent(r[1].replace(/\+/g,' ')) : null;
@@ -264,92 +268,82 @@ function calcDepths(items) {
 }
 
 function renderChart(items) {
-  var depthMap = calcDepths(items);
+  globalDepthMap = calcDepths(items);
 
-  // Build one template per depth+assistant combination
-  // Using BALKAN's proven base template approach
-  var W = 200, H = 80;
+  var W = 200;
+  var TH = 38; // title height
+  var H = 78;  // total height
 
-  depthColors.forEach(function(color, d) {
-    ['', '_asst'].forEach(function(suffix) {
-      var isAsst = suffix === '_asst';
-      var tplName = 'docc' + d + suffix;
+  // Single template using function for dynamic node color per depth
+  OrgChart.templates.docc = Object.assign({}, OrgChart.templates.ana);
+  OrgChart.templates.docc.size = [W, H];
+  OrgChart.templates.docc.defs = '';
+  OrgChart.templates.docc.ripple = { radius: 0, color: 'none', rect: null };
 
-      // Title bar height
-      var TH = 38;
+  // Dynamic node function — color based on depth stored in data
+  OrgChart.templates.docc.node = function(node, data) {
+    var color = data.nodeColor || '#2C3E50';
+    var isAsst = data.isAsst;
+    var stroke = isAsst ? '#F4D03F' : '#30363D';
+    var strokeW = isAsst ? '1.5' : '1';
+    var dash = isAsst ? 'stroke-dasharray="5,3"' : '';
+    return (
+      '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="6" fill="#21262D" stroke="' + stroke + '" stroke-width="' + strokeW + '" ' + dash + '/>' +
+      '<rect x="0" y="0" width="' + W + '" height="' + TH + '" rx="6" fill="' + color + '"/>' +
+      '<rect x="0" y="' + (TH-6) + '" width="' + W + '" height="6" fill="' + color + '"/>'
+    );
+  };
 
-      // Node SVG — colored header, dark body
-      var nodeSvg =
-        // Background
-        '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="6" fill="#21262D" stroke="' + (isAsst ? '#F4D03F' : '#30363D') + '" stroke-width="' + (isAsst ? '1.5' : '1') + '" ' + (isAsst ? 'stroke-dasharray="5,3"' : '') + '/>' +
-        // Title bar
-        '<rect x="0" y="0" width="' + W + '" height="' + TH + '" rx="6" fill="' + color + '"/>' +
-        // Title bar bottom square corners
-        '<rect x="0" y="' + (TH - 6) + '" width="' + W + '" height="6" fill="' + color + '"/>' +
-        // Title text (field_0)
-        '<text data-width="180" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.95)" x="10" y="14">{field_0}</text>' +
-        '<text data-width="180" style="font-size:10px;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.75)" x="10" y="27">{field_1}</text>' +
-        // Person (field_2)
-        '<text data-width="180" style="font-size:10px;font-family:Barlow,sans-serif" fill="#8B949E" x="10" y="' + (TH + 15) + '">{field_2}</text>' +
-        // Function (field_3)
-        '<text data-width="180" style="font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:600" fill="' + (isAsst ? '#F4D03F' : 'rgba(255,255,255,0.55)') + '" x="10" y="' + (TH + 30) + '">{field_3}</text>';
+  // Fields positioned within the node
+  OrgChart.templates.docc.field_0 =
+    '<text data-width="180" style="font-size:11px;font-weight:700;font-family:\'Barlow Condensed\',sans-serif;dominant-baseline:middle" fill="rgba(255,255,255,0.95)" x="10" y="14">{val}</text>';
+  OrgChart.templates.docc.field_1 =
+    '<text data-width="180" style="font-size:10px;font-family:\'Barlow\',sans-serif;dominant-baseline:middle" fill="#8B949E" x="10" y="' + (TH+14) + '">{val}</text>';
+  OrgChart.templates.docc.field_2 =
+    '<text data-width="180" style="font-size:9px;font-family:\'Barlow Condensed\',sans-serif;font-weight:600;dominant-baseline:middle" fill="rgba(255,255,255,0.55)" x="10" y="' + (TH+28) + '">{val}</text>';
 
-      OrgChart.templates[tplName] = Object.assign({}, OrgChart.templates.ana);
-      OrgChart.templates[tplName].size = [W, H];
-      OrgChart.templates[tplName].node = nodeSvg;
-      OrgChart.templates[tplName].field_0 = '<text data-width="180" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.95)" x="10" y="14">{val}</text>';
-      OrgChart.templates[tplName].field_1 = '<text data-width="180" style="font-size:10px;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.75)" x="10" y="27">{val}</text>';
-      OrgChart.templates[tplName].field_2 = '<text data-width="180" style="font-size:10px;font-family:Barlow,sans-serif" fill="#8B949E" x="10" y="' + (TH + 15) + '">{val}</text>';
-      OrgChart.templates[tplName].field_3 = '<text data-width="180" style="font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:600" fill="' + (isAsst ? '#F4D03F' : 'rgba(255,255,255,0.55)') + '" x="10" y="' + (TH + 30) + '">{val}</text>';
-      OrgChart.templates[tplName].link = '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />';
-      OrgChart.templates[tplName].connector = '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />';
-      OrgChart.templates[tplName].svg = '<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}"></svg>';
-    });
-  });
+  OrgChart.templates.docc.link =
+    '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />';
 
-  // Build nodes
+  // Build node array
   var nodes = items.map(function(x) {
-    var depth = depthMap[x.i] || 0;
+    var depth = globalDepthMap[x.i] || 0;
+    var color = depthColors[Math.min(depth, depthColors.length-1)];
     var isAssistant = (x.a === 1 || x.a === '1' || x.a === true || x.a === 'true');
     var fnLabel = getFunctionLabel(x.f || '', activationLevel);
-    var tplName = 'docc' + Math.min(depth, depthColors.length - 1) + (isAssistant ? '_asst' : '');
+    var fnDisplay = isAssistant ? ('ASST' + (fnLabel ? ' · ' + fnLabel : '')) : fnLabel;
 
     var node = {
       id: x.i,
       pid: (x.r && x.r !== 0) ? x.r : undefined,
-      field_0: (x.t || '').substring(0, 26),
-      field_1: '',
-      field_2: (x.p || '(Vacant)').substring(0, 28),
-      field_3: (isAssistant ? 'ASST' + (fnLabel ? ' · ' + fnLabel : '') : fnLabel).substring(0, 28),
-      template: tplName
+      // Template data fields
+      name: (x.t || '').substring(0, 26),
+      person: (x.p || '(Vacant)').substring(0, 28),
+      fn: fnDisplay.substring(0, 30),
+      // Dynamic color data
+      nodeColor: color,
+      isAsst: isAssistant
     };
 
     if (isAssistant) node.tags = ['assistant'];
     return node;
   });
 
-  // Tags config for assistant positioning
-  var tagsConfig = {
-    assistant: { isAssistant: true }
-  };
-
   chart = new OrgChart(document.getElementById('tree'), {
-    nodes: nodes,
-    tags: tagsConfig,
+    template: 'docc',
     nodeBinding: {
-      field_0: 'field_0',
-      field_1: 'field_1',
-      field_2: 'field_2',
-      field_3: 'field_3'
+      field_0: 'name',
+      field_1: 'person',
+      field_2: 'fn'
     },
+    nodes: nodes,
     enableDragDrop: false,
     mouseScrool: OrgChart.action.zoom,
     assistantSeparation: 80,
     levelSeparation: 60,
     siblingSeparation: 20,
     subtreeSeparation: 30,
-    padding: 40,
-    template: 'docc0'
+    padding: 40
   });
 }
 
@@ -416,6 +410,7 @@ function showTab(name) {
     document.getElementById('tab-chart').classList.add('active');
     document.getElementById('tab-table').classList.remove('active');
     document.getElementById('zc').classList.remove('hidden');
+    if(chart) chart.fit();
   } else {
     document.getElementById('panel-chart').style.display='none';
     document.getElementById('panel-table').style.display='block';
@@ -431,14 +426,10 @@ function zoomOut() { if(chart) chart.zoom(false); }
 function fitScreen(){ if(chart) chart.fit(); }
 
 window.addEventListener('load', function() {
-
-  // Check BALKAN loaded
   if (typeof OrgChart === 'undefined') {
     showMsg('⚠️', 'Library Error', 'BALKAN OrgChart library failed to load from CDN. Check your internet connection.', true);
     return;
   }
-
-  document.getElementById('load-status').textContent = 'Parsing roster data...';
 
   var raw = param('data');
   var level = param('level');
@@ -468,23 +459,21 @@ window.addEventListener('load', function() {
     return;
   }
 
-  document.getElementById('load-status').textContent = 'Building org chart...';
+  // Show app first so BALKAN can measure the container
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('zc').classList.remove('hidden');
 
-try {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('zc').classList.remove('hidden');
-    // Give browser one frame to resolve flex layout before BALKAN measures the container
-    setTimeout(function() {
-      var panel = document.getElementById('panel-chart');
-      var tree = document.getElementById('tree');
-      tree.style.width = panel.offsetWidth + 'px';
-      tree.style.height = panel.offsetHeight + 'px';
-      renderChart(allItems);
-    }, 50);
-  } catch(e) {
-    showMsg('⚠️', 'Render Error', e.message + '<br><br><small>' + (e.stack || '') + '</small>', true);
-  }
+  // Let browser render the flex layout, then init BALKAN
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      try {
+        renderChart(allItems);
+      } catch(e) {
+        showMsg('⚠️', 'Render Error', e.message + '<br><small>' + (e.stack||'') + '</small>', true);
+      }
+    });
+  });
 });
 </script>
 </body>
