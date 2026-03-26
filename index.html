@@ -343,7 +343,7 @@ function getFunctionLabel(fn, level) {
   var isLevel3 = level && level.indexOf('3') > -1;
   // Watch Officer / Duty Officer logic
   if (watchOfficerFunctions.indexOf(fn) > -1) {
-    return isLevel3 ? 'Watch Officer' : 'Duty Officer';
+    return isLevel3 ? 'Duty Officer' : 'Watch Officer';
   }
   return fn;
 }
