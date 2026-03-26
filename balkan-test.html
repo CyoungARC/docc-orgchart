@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOCC — Org Chart (BALKAN Test)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0D1117;--surface:#161B22;--surface2:#21262D;
+      --border:#30363D;--text:#E6EDF3;--dim:#8B949E;--accent:#C0392B;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text)}
+    #app{display:flex;flex-direction:column;height:100vh}
+
+    /* Header */
+    #hdr{background:var(--surface);border-bottom:1px solid var(--border);
+      padding:0 20px;height:52px;display:flex;align-items:center;
+      justify-content:space-between;flex-shrink:0;position:relative}
+    #hdr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+      background:linear-gradient(180deg,var(--accent),transparent)}
+    .hl{display:flex;align-items:center;gap:12px}
+    .logo{width:32px;height:32px;background:var(--accent);border-radius:6px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:#fff}
+    .hdiv{width:1px;height:28px;background:var(--border)}
+    .hsub{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;
+      letter-spacing:.1em;color:var(--dim);text-transform:uppercase}
+    .htitle{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;
+      letter-spacing:.06em;text-transform:uppercase}
+    #badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+      letter-spacing:.1em;text-transform:uppercase;background:rgba(192,57,43,.2);
+      border:1px solid rgba(192,57,43,.4);color:#E74C3C;padding:3px 10px;border-radius:3px}
+    .dot{width:6px;height:6px;border-radius:50%;background:#2ECC71;display:inline-block;
+      margin-right:5px;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* Level badge */
+    #level-badge{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;
+      letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;
+      border-radius:4px;border:1px solid;display:flex;align-items:center;gap:6px}
+    #level-badge.level1{background:rgba(192,57,43,.2);border-color:rgba(192,57,43,.5);color:#E74C3C}
+    #level-badge.level2{background:rgba(212,172,13,.2);border-color:rgba(212,172,13,.5);color:#F4D03F}
+    #level-badge.level3{background:rgba(30,132,73,.2);border-color:rgba(30,132,73,.5);color:#2ECC71}
+    .level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .level1 .level-dot{background:#E74C3C;box-shadow:0 0 6px #E74C3C}
+    .level2 .level-dot{background:#F4D03F;box-shadow:0 0 6px #F4D03F}
+    .level3 .level-dot{background:#2ECC71;box-shadow:0 0 6px #2ECC71}
+
+    /* Bookmark warning */
+    #bookmark-warning{background:rgba(212,172,13,.1);border-bottom:1px solid rgba(212,172,13,.3);
+      padding:5px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+    #bookmark-warning span{font-size:11px;color:#F4D03F;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
+
+    /* Legend */
+    #leg{background:var(--surface);border-bottom:1px solid var(--border);
+      padding:5px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+    .ll{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+      letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+    .li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
+    .ls{width:10px;height:10px;border-radius:2px}
+
+    /* Tabs */
+    #tabs{background:var(--surface);border-bottom:1px solid var(--border);
+      padding:0 20px;display:flex;align-items:center;gap:2px;flex-shrink:0}
+    .tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+      letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;cursor:pointer;
+      color:var(--dim);border-bottom:2px solid transparent;transition:all .15s;
+      background:none;border-top:none;border-left:none;border-right:none}
+    .tab:hover{color:var(--text)}
+    .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+
+    /* Chart panel */
+    #panel-chart{flex:1;background:var(--bg);position:relative;display:block;overflow:hidden}
+    #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
+      background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
+        linear-gradient(90deg,var(--surface2) 1px,transparent 1px);
+      background-size:40px 40px;opacity:.2;z-index:0}
+    #tree{width:100%;height:100%;position:relative;z-index:1}
+
+    /* Table panel */
+    #panel-table{flex:1;overflow:auto;background:var(--bg);display:none;padding:20px}
+
+    /* BALKAN node customization via CSS */
+    .orgchart-container{background:transparent!important}
+
+    /* Custom node template styles */
+    .docc-node{
+      border-radius:6px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,.4);
+      font-family:'Barlow',sans-serif;
+      min-width:160px;
+      max-width:180px;
+    }
+    .docc-node-title{
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:12px;font-weight:700;
+      padding:7px 10px;
+      color:rgba(255,255,255,.95);
+      text-shadow:0 1px 2px rgba(0,0,0,.3);
+      line-height:1.3;
+      word-wrap:break-word;
+    }
+    .docc-node-content{
+      background:var(--surface2);
+      padding:5px 10px;
+      font-size:10px;
+      color:var(--dim);
+      line-height:1.4;
+      border-top:none;
+      word-wrap:break-word;
+    }
+    .fn-tag{
+      display:inline-block;font-size:9px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      padding:1px 5px;border-radius:2px;margin-top:3px;
+      background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .asst-tag{
+      display:inline-block;font-size:9px;
+      font-family:'Barlow Condensed',sans-serif;
+      font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      padding:1px 5px;border-radius:2px;margin-top:3px;
+      background:rgba(255,200,0,.2);color:#F4D03F;
+      border:1px solid rgba(255,200,0,.3);
+    }
+
+    /* Roster table */
+    #roster-search{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    #search-input{font-family:'Barlow',sans-serif;font-size:12px;background:var(--surface);
+      border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:4px;
+      width:280px;outline:none}
+    #search-input::placeholder{color:var(--dim)}
+    #row-count{font-size:11px;color:var(--dim);margin-left:auto;
+      font-family:'Barlow Condensed',sans-serif}
+    #roster-table{width:100%;border-collapse:collapse;font-size:12px}
+    #roster-table thead tr{background:var(--surface);position:sticky;top:0;z-index:5}
+    #roster-table th{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+      letter-spacing:.08em;text-transform:uppercase;color:var(--dim);padding:10px 14px;
+      text-align:left;border-bottom:1px solid var(--border);cursor:pointer}
+    #roster-table th:hover{color:var(--text)}
+    #roster-table th.sorted{color:var(--text)}
+    #roster-table th .sort-arrow{margin-left:4px;opacity:.5}
+    #roster-table th.sorted .sort-arrow{opacity:1;color:var(--accent)}
+    #roster-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+    #roster-table tbody tr:hover{background:var(--surface)}
+    #roster-table td{padding:9px 14px;color:var(--text);vertical-align:middle}
+    #roster-table td.vacant{color:var(--dim);font-style:italic}
+    #roster-table td.pos{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px}
+    #roster-table td.sec{color:var(--dim);font-size:11px}
+    #roster-table td.email a{color:#79C0FF;text-decoration:none;font-size:11px}
+    #roster-table td.email a:hover{text-decoration:underline}
+    #roster-table td.phone{font-size:11px;color:var(--dim)}
+    .dbadge{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+    /* Loading */
+    #loading{position:fixed;inset:0;background:var(--bg);display:flex;
+      flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:18px}
+    .slogo{width:52px;height:52px;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
+      border-radius:10px;display:flex;align-items:center;justify-content:center;
+      font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--accent)}
+    .sbar{width:180px;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden}
+    .sfill{height:100%;background:linear-gradient(90deg,var(--accent),#E74C3C);animation:lb 1.5s ease-in-out infinite}
+    @keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+    .stxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+    /* Message */
+    #msgbox{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:100}
+    #msgbox.vis{display:flex}
+    .mcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:30px 38px;max-width:500px;text-align:center}
+    .micon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 14px}
+    .mcard h3{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+    .mcard p{font-size:12px;color:var(--dim);line-height:1.7}
+    .mcard a{color:#79C0FF}
+
+    /* Zoom */
+    #zc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:4px;z-index:50}
+    #zc.hidden{display:none}
+    .zb{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);color:var(--dim);
+      border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .zb:hover{background:var(--surface2);color:var(--text);border-color:#555}
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="slogo">ARC</div>
+  <div class="sbar"><div class="sfill"></div></div>
+  <div class="stxt">Loading Activation Roster</div>
+</div>
+
+<div id="msgbox">
+  <div class="mcard">
+    <div class="micon" id="micon"></div>
+    <h3 id="mtitle"></h3>
+    <p id="mbody"></p>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div id="hdr">
+    <div class="hl">
+      <div class="logo">ARC</div>
+      <div class="hdiv"></div>
+      <div>
+        <div class="hsub">Disaster Operations Coordination Center</div>
+        <div class="htitle">Activation Org Chart <span style="font-size:11px;color:#F4D03F;margin-left:8px">BALKAN TEST</span></div>
+      </div>
+      <div id="badge"><span class="dot"></span>ACTIVATED</div>
+      <div id="level-badge" class="level3">
+        <div class="level-dot"></div>
+        <span id="level-text">Level 3</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="bookmark-warning">
+    <span>⚠️</span>
+    <span>Do not bookmark this page — it reflects a specific activation snapshot. For current data always access via the <strong>DOCC Portal</strong> at <a href="https://rdcrss.org/docc" style="color:#F4D03F">rdcrss.org/docc</a>.</span>
+  </div>
+
+  <div id="leg">
+    <span class="ll">Levels:</span>
+    <div class="li"><div class="ls" style="background:#6B1111"></div>Director</div>
+    <div class="li"><div class="ls" style="background:#992222"></div>Deputy</div>
+    <div class="li"><div class="ls" style="background:#0F3460"></div>NAD</div>
+    <div class="li"><div class="ls" style="background:#16497A"></div>Branch</div>
+    <div class="li"><div class="ls" style="background:#0B5345"></div>Section</div>
+    <div class="li"><div class="ls" style="background:#0E6655"></div>Unit</div>
+    <div class="li"><div class="ls" style="background:#2C3E50"></div>L6</div>
+    <div class="li"><div class="ls" style="background:#4A235A"></div>L7+</div>
+    <div class="li"><div class="ls" style="background:#F4D03F;width:14px;height:14px;border-radius:3px;border:1px solid rgba(244,208,63,.5)"></div>Assistant</div>
+    <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
+  </div>
+
+  <div id="tabs">
+    <button class="tab active" id="tab-chart" onclick="showTab('chart')">Org Chart</button>
+    <button class="tab" id="tab-table" onclick="showTab('table')">Roster</button>
+  </div>
+
+  <div id="panel-chart">
+    <div id="tree"></div>
+  </div>
+
+  <div id="panel-table">
+    <div id="roster-search">
+      <input type="text" id="search-input" placeholder="Search position, name, section..." oninput="filterTable()">
+      <span id="row-count"></span>
+    </div>
+    <table id="roster-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable('t')" id="th-t">Position <span class="sort-arrow">↕</span></th>
+          <th onclick="sortTable('s')" id="th-s">Section <span class="sort-arrow">↕</span></th>
+          <th onclick="sortTable('p')" id="th-p">Name <span class="sort-arrow">↕</span></th>
+          <th onclick="sortTable('ph')" id="th-ph">Phone <span class="sort-arrow">↕</span></th>
+          <th onclick="sortTable('e')" id="th-e">Email <span class="sort-arrow">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="roster-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="zc" class="hidden">
+  <button class="zb" onclick="zoomIn()">+</button>
+  <button class="zb" onclick="zoomOut()">−</button>
+  <button class="zb" onclick="fitScreen()" style="font-size:11px">⊕</button>
+</div>
+
+<!-- BALKAN OrgChart JS via CDN -->
+<script src="https://cdn.balkan.app/orgchart.js"></script>
+<script>
+
+var allItems = [];
+var activationLevel = 'Level 3';
+var sortCol = 'so';
+var sortAsc = true;
+var chart = null;
+
+// Depth colors matching existing design
+var depthColors = [
+  '#6B1111','#992222','#0F3460','#16497A',
+  '#0B5345','#0E6655','#2C3E50','#4A235A','#784212'
+];
+
+// Functions with Watch Officer / Duty Officer logic
+var dualFunctions = ['Duty Officers / Watch Officers','Duty Officer / Watch Officer'];
+
+function param(n) {
+  var r = new RegExp('[?&]' + n + '=([^&#]*)').exec(location.href);
+  return r ? decodeURIComponent(r[1].replace(/\+/g,' ')) : null;
+}
+
+function showMsg(icon, title, body, err) {
+  $('#loading').hide();
+  document.getElementById('micon').innerHTML = icon;
+  document.getElementById('micon').style.background = err ? 'rgba(192,57,43,.15)' : 'rgba(22,73,122,.15)';
+  document.getElementById('micon').style.border = err ? '1px solid rgba(192,57,43,.3)' : '1px solid rgba(22,73,122,.3)';
+  document.getElementById('mtitle').textContent = title;
+  document.getElementById('mbody').innerHTML = body;
+  document.getElementById('msgbox').classList.add('vis');
+}
+
+function setLevelBadge(level) {
+  var badge = document.getElementById('level-badge');
+  var text = document.getElementById('level-text');
+  if (level && level.indexOf('1') > -1) badge.className = 'level1';
+  else if (level && level.indexOf('2') > -1) badge.className = 'level2';
+  else badge.className = 'level3';
+  text.textContent = level || 'Level 3';
+}
+
+function getFunctionLabel(fn, level) {
+  if (!fn) return '';
+  var isLevel3 = level && level.indexOf('3') > -1;
+  if (dualFunctions.indexOf(fn) > -1) return isLevel3 ? 'Duty Officer' : 'Watch Officer';
+  return fn;
+}
+
+// Build BALKAN-format nodes from flat item array
+// BALKAN uses: id, pid, tags for assistant
+function buildBalkanNodes(items) {
+  // Calculate depth for each node for color assignment
+  var depthMap = {};
+  var parentMap = {};
+  items.forEach(function(x) { parentMap[x.i] = x.r || 0; });
+
+  function getDepth(id) {
+    if (depthMap[id] !== undefined) return depthMap[id];
+    var pid = parentMap[id];
+    if (!pid || pid === 0) { depthMap[id] = 0; return 0; }
+    depthMap[id] = getDepth(pid) + 1;
+    return depthMap[id];
+  }
+  items.forEach(function(x) { getDepth(x.i); });
+
+  return items.map(function(x) {
+    var depth = depthMap[x.i] || 0;
+    var color = depthColors[Math.min(depth, depthColors.length-1)];
+    var fnLabel = getFunctionLabel(x.f||'', activationLevel);
+    var isAssistant = (x.a === 1 || x.a === '1' || x.a === true || x.a === 'true');
+
+    // Build custom HTML template for the node
+    var titleHtml = '<div class="docc-node-title" style="background:' + color + '">' +
+      esc(x.t||'') + '</div>';
+    var contentLines = esc(x.p || '(Vacant)');
+    if (fnLabel) contentLines += '<br><span class="fn-tag">' + esc(fnLabel) + '</span>';
+    if (isAssistant) contentLines += '<br><span class="asst-tag">ASST</span>';
+    var contentHtml = '<div class="docc-node-content">' + contentLines + '</div>';
+
+    var node = {
+      id: x.i,
+      pid: x.r || undefined,
+      name: x.t || '',
+      person: x.p || '(Vacant)',
+      fn: fnLabel,
+      section: x.s || '',
+      phone: x.ph || '',
+      email: x.e || '',
+      sortOrder: x.so || 999,
+      depth: depth,
+      color: color,
+      // BALKAN template fields
+      field_0: x.t || '',
+      field_1: x.p || '(Vacant)',
+      // Custom HTML
+      nodeTemplate: titleHtml + contentHtml
+    };
+
+    // Mark as assistant using BALKAN tags
+    if (isAssistant) {
+      node.tags = ['assistant'];
+    }
+
+    return node;
+  });
+}
+
+function renderChart(nodes) {
+  var treeEl = document.getElementById('tree');
+
+  // Define custom template using BALKAN's template system
+  OrgChart.templates.docc = Object.assign({}, OrgChart.templates.ana);
+  OrgChart.templates.docc.size = [180, 70];
+  OrgChart.templates.docc.node = '<foreignObject x="0" y="0" width="180" height="150" style="overflow:visible">' +
+    '<div xmlns="http://www.w3.org/1999/xhtml" class="docc-node">' +
+    '{nodeTemplate}' +
+    '</div>' +
+    '</foreignObject>';
+  OrgChart.templates.docc.field_0 = '';
+  OrgChart.templates.docc.field_1 = '';
+
+  // Assistant template — gold border
+  OrgChart.templates.docc_assistant = Object.assign({}, OrgChart.templates.docc);
+  OrgChart.templates.docc_assistant.node = '<foreignObject x="0" y="0" width="180" height="150" style="overflow:visible">' +
+    '<div xmlns="http://www.w3.org/1999/xhtml" class="docc-node" style="outline:2px solid rgba(244,208,63,.5);outline-offset:2px">' +
+    '{nodeTemplate}' +
+    '</div>' +
+    '</foreignObject>';
+
+  chart = new OrgChart(treeEl, {
+    template: 'docc',
+    tags: {
+      assistant: {
+        template: 'docc_assistant'
+      }
+    },
+    nodeBinding: {
+      nodeTemplate: 'nodeTemplate'
+    },
+    enableDragDrop: false,
+    mouseScrool: OrgChart.action.zoom,
+    nodes: nodes,
+    assistantSeparation: 80,
+    levelSeparation: 50,
+    siblingSeparation: 20,
+    subtreeSeparation: 30,
+    padding: 40
+  });
+}
+
+// Roster table
+function renderTable(items) {
+  var search = (document.getElementById('search-input').value||'').toLowerCase();
+  var filtered = items.filter(function(x) {
+    if (!search) return true;
+    return (x.t||'').toLowerCase().indexOf(search)>-1 ||
+           (x.p||'').toLowerCase().indexOf(search)>-1 ||
+           (x.s||'').toLowerCase().indexOf(search)>-1 ||
+           (x.e||'').toLowerCase().indexOf(search)>-1;
+  });
+  filtered.sort(function(a,b) {
+    var va=a[sortCol]||'', vb=b[sortCol]||'';
+    if(sortCol==='so'){va=Number(va)||999;vb=Number(vb)||999;}
+    else{va=String(va).toLowerCase();vb=String(vb).toLowerCase();}
+    return sortAsc?(va<vb?-1:va>vb?1:0):(va<vb?1:va>vb?-1:0);
+  });
+  var tbody = document.getElementById('roster-body');
+  tbody.innerHTML = '';
+  filtered.forEach(function(x) {
+    var depth = 0;
+    var color = depthColors[0];
+    var fnLabel = getFunctionLabel(x.f||'', activationLevel);
+    var isVacant = !x.p||x.p==='(Vacant)';
+    var emailHtml = x.e ? '<a href="mailto:'+x.e+'">'+esc(x.e)+'</a>' : '<span style="color:var(--dim)">--</span>';
+    var isAssist = (x.a===1||x.a==='1'||x.a===true||x.a==='true');
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="pos">'+
+        (isAssist ? '<span style="color:#F4D03F;font-size:9px;font-family:Barlow Condensed;font-weight:700;margin-right:4px">ASST</span>' : '')+
+        esc(x.t||'')+(fnLabel?'<br><span style="font-size:10px;color:var(--dim)">'+esc(fnLabel)+'</span>':'')+'</td>'+
+      '<td class="sec">'+esc(x.s||'--')+'</td>'+
+      '<td class="'+(isVacant?'vacant':'')+'">'+esc(x.p||'(Vacant)')+'</td>'+
+      '<td class="phone">'+esc(x.ph||'--')+'</td>'+
+      '<td class="email">'+emailHtml+'</td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('row-count').textContent = filtered.length+' of '+items.length+' positions';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function filterTable(){ renderTable(allItems); }
+
+function sortTable(col) {
+  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=true;}
+  document.querySelectorAll('#roster-table th').forEach(function(th){
+    th.classList.remove('sorted');
+    var a=th.querySelector('.sort-arrow'); if(a)a.textContent='↕';
+  });
+  var th=document.getElementById('th-'+col);
+  if(th){th.classList.add('sorted');var a=th.querySelector('.sort-arrow');if(a)a.textContent=sortAsc?'↑':'↓';}
+  renderTable(allItems);
+}
+
+function showTab(name) {
+  if(name==='chart'){
+    document.getElementById('panel-chart').style.display='block';
+    document.getElementById('panel-table').style.display='none';
+    document.getElementById('tab-chart').classList.add('active');
+    document.getElementById('tab-table').classList.remove('active');
+    document.getElementById('zc').classList.remove('hidden');
+  } else {
+    document.getElementById('panel-chart').style.display='none';
+    document.getElementById('panel-table').style.display='block';
+    document.getElementById('tab-chart').classList.remove('active');
+    document.getElementById('tab-table').classList.add('active');
+    document.getElementById('zc').classList.add('hidden');
+    renderTable(allItems);
+  }
+}
+
+function zoomIn()  { if(chart) chart.zoom(true); }
+function zoomOut() { if(chart) chart.zoom(false); }
+function fitScreen(){ if(chart) chart.fit(); }
+
+// Main
+window.addEventListener('load', function() {
+  var raw = param('data');
+  var level = param('level');
+
+  if (!raw) {
+    var countdown = 5;
+    showMsg('📋', 'Redirecting to DOCC App',
+      'No roster data found. Redirecting you to the DOCC PowerApp in <strong id="countdown">5</strong> seconds...<br><br>' +
+      '<a href="https://rdcrss.org/docc">Click here if you are not redirected automatically</a>',
+      false);
+    var timer = setInterval(function() {
+      countdown--;
+      var el = document.getElementById('countdown');
+      if (el) el.textContent = countdown;
+      if (countdown <= 0) { clearInterval(timer); window.location.href = 'https://rdcrss.org/docc'; }
+    }, 1000);
+    return;
+  }
+
+  activationLevel = level || 'Level 3';
+  setLevelBadge(activationLevel);
+
+  try {
+    allItems = JSON.parse(raw);
+    if (!Array.isArray(allItems) || !allItems.length) throw new Error('Empty array.');
+  } catch(e) {
+    showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>',true);
+    return;
+  }
+
+  try {
+    var nodes = buildBalkanNodes(allItems);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('zc').classList.remove('hidden');
+    renderChart(nodes);
+  } catch(e) {
+    showMsg('⚠️','Render Error', e.message, true);
+  }
+});
+</script>
+</body>
+</html>
