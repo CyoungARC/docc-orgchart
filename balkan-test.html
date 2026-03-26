@@ -121,7 +121,7 @@
 <div id="loading">
   <div class="slogo">ARC</div>
   <div class="sbar"><div class="sfill"></div></div>
-  <div class="stxt">Loading Activation Roster</div>
+  <div class="stxt" id="load-status">Loading BALKAN Library...</div>
 </div>
 
 <div id="msgbox">
@@ -148,12 +148,10 @@
       </div>
     </div>
   </div>
-
   <div id="bookmark-warning">
     <span>⚠️</span>
     <span>Do not bookmark this page — it reflects a specific activation snapshot. For current data always access via the <strong>DOCC Portal</strong> at <a href="https://rdcrss.org/docc" style="color:#F4D03F">rdcrss.org/docc</a>.</span>
   </div>
-
   <div id="leg">
     <span class="ll">Levels:</span>
     <div class="li"><div class="ls" style="background:#6B1111"></div>Director</div>
@@ -164,19 +162,16 @@
     <div class="li"><div class="ls" style="background:#0E6655"></div>Unit</div>
     <div class="li"><div class="ls" style="background:#2C3E50"></div>L6</div>
     <div class="li"><div class="ls" style="background:#4A235A"></div>L7+</div>
-    <div class="li"><div class="ls" style="background:#F4D03F;border:1px dashed rgba(244,208,63,.5)"></div>Assistant</div>
+    <div class="li"><div class="ls" style="background:transparent;border:1px dashed #F4D03F"></div><span style="color:#F4D03F">Assistant</span></div>
     <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
   </div>
-
   <div id="tabs">
     <button class="tab active" id="tab-chart" onclick="showTab('chart')">Org Chart</button>
     <button class="tab" id="tab-table" onclick="showTab('table')">Roster</button>
   </div>
-
   <div id="panel-chart">
     <div id="tree"></div>
   </div>
-
   <div id="panel-table">
     <div id="roster-search">
       <input type="text" id="search-input" placeholder="Search position, name, section..." oninput="filterTable()">
@@ -250,114 +245,102 @@ function getFunctionLabel(fn, level) {
   return fn;
 }
 
-// Calculate depth for each node
 function calcDepths(items) {
   var depthMap = {};
   var parentMap = {};
   items.forEach(function(x) { parentMap[x.i] = x.r || 0; });
-  function getDepth(id) {
+  function getDepth(id, visited) {
+    visited = visited || {};
     if (depthMap[id] !== undefined) return depthMap[id];
+    if (visited[id]) { depthMap[id] = 0; return 0; }
+    visited[id] = true;
     var pid = parentMap[id];
     if (!pid || pid === 0) { depthMap[id] = 0; return 0; }
-    depthMap[id] = getDepth(pid) + 1;
+    depthMap[id] = getDepth(pid, visited) + 1;
     return depthMap[id];
   }
-  items.forEach(function(x) { getDepth(x.i); });
+  items.forEach(function(x) { getDepth(x.i, {}); });
   return depthMap;
 }
 
 function renderChart(items) {
   var depthMap = calcDepths(items);
 
-  // Build one SVG template per depth level
-  // BALKAN templates use SVG with {field_X} placeholders
-  var NODE_W = 200;
-  var TITLE_H = 44;
-  var CONTENT_H = 36;
-  var NODE_H = TITLE_H + CONTENT_H;
-  var CORNER = 6;
+  // Build one template per depth+assistant combination
+  // Using BALKAN's proven base template approach
+  var W = 200, H = 80;
 
-  // Register a template for each depth color
   depthColors.forEach(function(color, d) {
-    var tplName = 'docc_d' + d;
-    OrgChart.templates[tplName] = {
-      defs: '',
-      size: [NODE_W, NODE_H],
-      mini_size: [NODE_W, NODE_H],
-      // Connector line color
-      svg: '<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}"></svg>',
-      link: '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />',
-      connector: '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />',
-      // Node shape: colored title bar + dark content area
-      node:
-        '<rect x="0" y="0" width="' + NODE_W + '" height="' + NODE_H + '" rx="' + CORNER + '" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
-        '<rect x="0" y="0" width="' + NODE_W + '" height="' + TITLE_H + '" rx="' + CORNER + '" fill="' + color + '"/>' +
-        '<rect x="0" y="' + (TITLE_H - CORNER) + '" width="' + NODE_W + '" height="' + CORNER + '" fill="' + color + '"/>' +
-        // Title text
-        '<text x="10" y="16" width="' + (NODE_W-20) + '" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.95);text-shadow:none" dominant-baseline="auto">{val_t}</text>' +
-        // Person text
-        '<text x="10" y="' + (TITLE_H + 14) + '" width="' + (NODE_W-20) + '" style="font-size:10px;font-family:Barlow,sans-serif;fill:#8B949E" dominant-baseline="auto">{val_p}</text>' +
-        // Function text
-        '<text x="10" y="' + (TITLE_H + 27) + '" width="' + (NODE_W-20) + '" style="font-size:9px;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.6);font-weight:600;letter-spacing:0.05em" dominant-baseline="auto">{val_f}</text>',
-      field_val_t: '<text style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.95)" x="10" y="16" width="' + (NODE_W-20) + '">{val}</text>',
-      field_val_p: '<text style="font-size:10px;font-family:Barlow,sans-serif;fill:#8B949E" x="10" y="' + (TITLE_H + 14) + '" width="' + (NODE_W-20) + '">{val}</text>',
-      field_val_f: '<text style="font-size:9px;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.6);font-weight:600" x="10" y="' + (TITLE_H + 27) + '" width="' + (NODE_W-20) + '">{val}</text>'
-    };
+    ['', '_asst'].forEach(function(suffix) {
+      var isAsst = suffix === '_asst';
+      var tplName = 'docc' + d + suffix;
 
-    // Assistant variant — gold dashed border
-    var asstName = 'docc_d' + d + '_asst';
-    OrgChart.templates[asstName] = Object.assign({}, OrgChart.templates[tplName]);
-    OrgChart.templates[asstName].node =
-      '<rect x="1" y="1" width="' + (NODE_W-2) + '" height="' + (NODE_H-2) + '" rx="' + CORNER + '" fill="none" stroke="#F4D03F" stroke-width="1.5" stroke-dasharray="4,3"/>' +
-      '<rect x="0" y="0" width="' + NODE_W + '" height="' + NODE_H + '" rx="' + CORNER + '" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
-      '<rect x="0" y="0" width="' + NODE_W + '" height="' + TITLE_H + '" rx="' + CORNER + '" fill="' + color + '"/>' +
-      '<rect x="0" y="' + (TITLE_H - CORNER) + '" width="' + NODE_W + '" height="' + CORNER + '" fill="' + color + '"/>' +
-      '<text x="10" y="16" width="' + (NODE_W-20) + '" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif;fill:rgba(255,255,255,0.95)" dominant-baseline="auto">{val_t}</text>' +
-      '<text x="10" y="' + (TITLE_H + 14) + '" width="' + (NODE_W-20) + '" style="font-size:10px;font-family:Barlow,sans-serif;fill:#8B949E" dominant-baseline="auto">{val_p}</text>' +
-      '<text x="10" y="' + (TITLE_H + 27) + '" width="' + (NODE_W-20) + '" style="font-size:9px;font-family:Barlow Condensed,sans-serif;fill:#F4D03F;font-weight:600;letter-spacing:0.05em" dominant-baseline="auto">ASST · {val_f}</text>';
+      // Title bar height
+      var TH = 38;
+
+      // Node SVG — colored header, dark body
+      var nodeSvg =
+        // Background
+        '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="6" fill="#21262D" stroke="' + (isAsst ? '#F4D03F' : '#30363D') + '" stroke-width="' + (isAsst ? '1.5' : '1') + '" ' + (isAsst ? 'stroke-dasharray="5,3"' : '') + '/>' +
+        // Title bar
+        '<rect x="0" y="0" width="' + W + '" height="' + TH + '" rx="6" fill="' + color + '"/>' +
+        // Title bar bottom square corners
+        '<rect x="0" y="' + (TH - 6) + '" width="' + W + '" height="6" fill="' + color + '"/>' +
+        // Title text (field_0)
+        '<text data-width="180" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.95)" x="10" y="14">{field_0}</text>' +
+        '<text data-width="180" style="font-size:10px;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.75)" x="10" y="27">{field_1}</text>' +
+        // Person (field_2)
+        '<text data-width="180" style="font-size:10px;font-family:Barlow,sans-serif" fill="#8B949E" x="10" y="' + (TH + 15) + '">{field_2}</text>' +
+        // Function (field_3)
+        '<text data-width="180" style="font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:600" fill="' + (isAsst ? '#F4D03F' : 'rgba(255,255,255,0.55)') + '" x="10" y="' + (TH + 30) + '">{field_3}</text>';
+
+      OrgChart.templates[tplName] = Object.assign({}, OrgChart.templates.ana);
+      OrgChart.templates[tplName].size = [W, H];
+      OrgChart.templates[tplName].node = nodeSvg;
+      OrgChart.templates[tplName].field_0 = '<text data-width="180" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.95)" x="10" y="14">{val}</text>';
+      OrgChart.templates[tplName].field_1 = '<text data-width="180" style="font-size:10px;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.75)" x="10" y="27">{val}</text>';
+      OrgChart.templates[tplName].field_2 = '<text data-width="180" style="font-size:10px;font-family:Barlow,sans-serif" fill="#8B949E" x="10" y="' + (TH + 15) + '">{val}</text>';
+      OrgChart.templates[tplName].field_3 = '<text data-width="180" style="font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:600" fill="' + (isAsst ? '#F4D03F' : 'rgba(255,255,255,0.55)') + '" x="10" y="' + (TH + 30) + '">{val}</text>';
+      OrgChart.templates[tplName].link = '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />';
+      OrgChart.templates[tplName].connector = '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />';
+      OrgChart.templates[tplName].svg = '<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}"></svg>';
+    });
   });
 
-  // Build node data for BALKAN
+  // Build nodes
   var nodes = items.map(function(x) {
     var depth = depthMap[x.i] || 0;
     var isAssistant = (x.a === 1 || x.a === '1' || x.a === true || x.a === 'true');
     var fnLabel = getFunctionLabel(x.f || '', activationLevel);
-    var tplName = 'docc_d' + Math.min(depth, depthColors.length - 1) + (isAssistant ? '_asst' : '');
-    var personDisplay = (x.p && x.p !== '(Vacant)') ? x.p : '(Vacant)';
-
-    // Truncate long strings for SVG
-    var titleDisplay = (x.t || '').length > 22 ? (x.t || '').substring(0, 22) + '…' : (x.t || '');
-    var personShort = personDisplay.length > 24 ? personDisplay.substring(0, 24) + '…' : personDisplay;
+    var tplName = 'docc' + Math.min(depth, depthColors.length - 1) + (isAssistant ? '_asst' : '');
 
     var node = {
       id: x.i,
       pid: (x.r && x.r !== 0) ? x.r : undefined,
-      val_t: titleDisplay,
-      val_p: personShort,
-      val_f: fnLabel,
-      // Keep full data for roster table
-      _t: x.t, _p: x.p, _s: x.s, _ph: x.ph, _e: x.e, _f: x.f,
-      _so: x.so, _a: x.a,
+      field_0: (x.t || '').substring(0, 26),
+      field_1: '',
+      field_2: (x.p || '(Vacant)').substring(0, 28),
+      field_3: (isAssistant ? 'ASST' + (fnLabel ? ' · ' + fnLabel : '') : fnLabel).substring(0, 28),
       template: tplName
     };
 
     if (isAssistant) node.tags = ['assistant'];
-
     return node;
   });
 
-  // Register assistant tag
-  var chartConfig = {
-    template: 'docc_d0',
-    tags: {
-      assistant: {
-        isAssistant: true
-      }
-    },
+  // Tags config for assistant positioning
+  var tagsConfig = {
+    assistant: { isAssistant: true }
+  };
+
+  chart = new OrgChart(document.getElementById('tree'), {
+    nodes: nodes,
+    tags: tagsConfig,
     nodeBinding: {
-      val_t: 'val_t',
-      val_p: 'val_p',
-      val_f: 'val_f'
+      field_0: 'field_0',
+      field_1: 'field_1',
+      field_2: 'field_2',
+      field_3: 'field_3'
     },
     enableDragDrop: false,
     mouseScrool: OrgChart.action.zoom,
@@ -366,16 +349,13 @@ function renderChart(items) {
     siblingSeparation: 20,
     subtreeSeparation: 30,
     padding: 40,
-    nodes: nodes
-  };
-
-  chart = new OrgChart(document.getElementById('tree'), chartConfig);
+    template: 'docc0'
+  });
 }
 
-// Roster table
 function renderTable(items) {
-  var search = (document.getElementById('search-input').value || '').toLowerCase();
   var depthMap = calcDepths(items);
+  var search = (document.getElementById('search-input').value || '').toLowerCase();
   var filtered = items.filter(function(x) {
     if (!search) return true;
     return (x.t||'').toLowerCase().indexOf(search)>-1 ||
@@ -401,7 +381,7 @@ function renderTable(items) {
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td class="pos"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle;background:'+color+'"></span>' +
-      (isAssist ? '<span style="color:#F4D03F;font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:700;margin-right:4px">ASST</span>' : '') +
+      (isAssist ? '<span style="color:#F4D03F;font-size:9px;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;margin-right:4px">ASST</span>' : '') +
       esc(x.t||'') + (fnLabel ? '<br><span style="font-size:10px;color:var(--dim)">'+esc(fnLabel)+'</span>' : '') + '</td>' +
       '<td class="sec">'+esc(x.s||'--')+'</td>'+
       '<td class="'+(isVacant?'vacant':'')+'">'+esc(x.p||'(Vacant)')+'</td>'+
@@ -451,6 +431,15 @@ function zoomOut() { if(chart) chart.zoom(false); }
 function fitScreen(){ if(chart) chart.fit(); }
 
 window.addEventListener('load', function() {
+
+  // Check BALKAN loaded
+  if (typeof OrgChart === 'undefined') {
+    showMsg('⚠️', 'Library Error', 'BALKAN OrgChart library failed to load from CDN. Check your internet connection.', true);
+    return;
+  }
+
+  document.getElementById('load-status').textContent = 'Parsing roster data...';
+
   var raw = param('data');
   var level = param('level');
 
@@ -475,9 +464,11 @@ window.addEventListener('load', function() {
     allItems = JSON.parse(raw);
     if (!Array.isArray(allItems) || !allItems.length) throw new Error('Empty array.');
   } catch(e) {
-    showMsg('⚠️','Data Error','Could not parse roster: <strong>'+e.message+'</strong>', true);
+    showMsg('⚠️', 'Data Error', 'Could not parse roster: <strong>' + e.message + '</strong>', true);
     return;
   }
+
+  document.getElementById('load-status').textContent = 'Building org chart...';
 
   try {
     document.getElementById('loading').style.display = 'none';
@@ -485,7 +476,7 @@ window.addEventListener('load', function() {
     document.getElementById('zc').classList.remove('hidden');
     renderChart(allItems);
   } catch(e) {
-    showMsg('⚠️','Render Error', e.message, true);
+    showMsg('⚠️', 'Render Error', e.message + '<br><br><small>' + (e.stack || '') + '</small>', true);
   }
 });
 </script>
