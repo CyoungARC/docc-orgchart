@@ -283,12 +283,8 @@ function renderChart(items) {
   // Dynamic node function — color based on depth stored in data
   OrgChart.templates.docc.node = function(node, data) {
     var color = data.nodeColor || '#2C3E50';
-    var isAsst = data.isAsst;
-    var stroke = isAsst ? '#F4D03F' : '#30363D';
-    var strokeW = isAsst ? '1.5' : '1';
-    var dash = isAsst ? 'stroke-dasharray="5,3"' : '';
     return (
-      '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="6" fill="#21262D" stroke="' + stroke + '" stroke-width="' + strokeW + '" ' + dash + '/>' +
+      '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="6" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
       '<rect x="0" y="0" width="' + W + '" height="' + TH + '" rx="6" fill="' + color + '"/>' +
       '<rect x="0" y="' + (TH-6) + '" width="' + W + '" height="6" fill="' + color + '"/>'
     );
@@ -303,7 +299,7 @@ function renderChart(items) {
     '<text data-width="180" style="font-size:9px;font-family:\'Barlow Condensed\',sans-serif;font-weight:600;dominant-baseline:middle" fill="rgba(255,255,255,0.55)" x="10" y="' + (TH+28) + '">{val}</text>';
 
   OrgChart.templates.docc.link =
-    '<path stroke="#30363D" stroke-width="1" fill="none" {link-attr} />';
+    '<path stroke="#30363D" stroke-width="1px" fill="none" data-l-id="[{id}][{child-id}]" d="M{xa},{ya} C{xb},{yb} {xc},{yc} {xd},{yd}" />';
 
   // Build node array
   var nodes = items.map(function(x) {
@@ -319,7 +315,7 @@ function renderChart(items) {
       // Template data fields
       name: (x.t || '').substring(0, 26),
       person: (x.p || '(Vacant)').substring(0, 28),
-      fn: fnDisplay.substring(0, 30),
+      fn: fnLabel.substring(0, 30),
       // Dynamic color data
       nodeColor: color,
       isAsst: isAssistant
