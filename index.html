@@ -13,11 +13,14 @@
       --c4:#0B5345;--c5:#0E6655;--c6:#2C3E50;--c7:#4A235A;--c8:#784212;
       --bg:#0D1117;--surface:#161B22;--surface2:#21262D;
       --border:#30363D;--text:#E6EDF3;--dim:#8B949E;--accent:#C0392B;
+      --level1:#C0392B;--level2:#D4AC0D;--level3:#1E8449;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%;overflow:hidden}
     body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text)}
     #app{display:flex;flex-direction:column;height:100vh}
+
+    /* Header */
     #hdr{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;height:52px;display:flex;align-items:center;
       justify-content:space-between;flex-shrink:0;position:relative}
@@ -38,13 +41,42 @@
     .dot{width:6px;height:6px;border-radius:50%;background:#2ECC71;display:inline-block;
       margin-right:5px;animation:pulse 2s ease-in-out infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .hr{display:flex;align-items:center;gap:6px}
+    .hr{display:flex;align-items:center;gap:8px}
+
+    /* Activation level badge */
+    #level-badge{
+      font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;
+      letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;
+      border-radius:4px;border:1px solid;display:flex;align-items:center;gap:6px;
+    }
+    #level-badge.level1{background:rgba(192,57,43,.2);border-color:rgba(192,57,43,.5);color:#E74C3C}
+    #level-badge.level2{background:rgba(212,172,13,.2);border-color:rgba(212,172,13,.5);color:#F4D03F}
+    #level-badge.level3{background:rgba(30,132,73,.2);border-color:rgba(30,132,73,.5);color:#2ECC71}
+    .level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .level1 .level-dot{background:#E74C3C;box-shadow:0 0 6px #E74C3C}
+    .level2 .level-dot{background:#F4D03F;box-shadow:0 0 6px #F4D03F}
+    .level3 .level-dot{background:#2ECC71;box-shadow:0 0 6px #2ECC71}
+
+    /* Bookmark warning banner */
+    #bookmark-warning{
+      background:rgba(212,172,13,.1);border-bottom:1px solid rgba(212,172,13,.3);
+      padding:5px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;
+    }
+    #bookmark-warning span{
+      font-size:11px;color:#F4D03F;font-family:'Barlow Condensed',sans-serif;
+      letter-spacing:.04em;
+    }
+    #bookmark-warning .warn-icon{font-size:13px;flex-shrink:0}
+
+    /* Legend */
     #leg{background:var(--surface);border-bottom:1px solid var(--border);
       padding:5px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
     .ll{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
     .li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
     .ls{width:10px;height:10px;border-radius:2px}
+
+    /* Tabs */
     #tabs{background:var(--surface);border-bottom:1px solid var(--border);
       padding:0 20px;display:flex;align-items:center;gap:2px;flex-shrink:0}
     .tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
@@ -53,6 +85,8 @@
       background:none;border-top:none;border-left:none;border-right:none}
     .tab:hover{color:var(--text)}
     .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+
+    /* Chart panel */
     #panel-chart{flex:1;background:var(--bg);position:relative;display:block;overflow:hidden}
     #panel-chart::before{content:'';position:absolute;inset:0;pointer-events:none;
       background-image:linear-gradient(var(--surface2) 1px,transparent 1px),
@@ -61,7 +95,11 @@
     #inner{padding:40px;text-align:center;position:relative;
       animation:fi .4s ease-out;width:100%;height:100%;overflow:visible;z-index:1}
     @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Table panel */
     #panel-table{flex:1;overflow:auto;background:var(--bg);display:none;padding:20px}
+
+    /* OrgChart overrides */
     .orgchart{background:transparent!important;display:inline-block!important}
     .orgchart table{border-spacing:14px!important}
     .orgchart .node{width:200px!important;min-width:200px!important;max-width:200px!important;
@@ -80,7 +118,7 @@
       padding:5px 10px!important;border-radius:0 0 6px 6px!important;
       color:var(--dim)!important;background:var(--surface2)!important;
       border:1px solid var(--border)!important;border-top:none!important;
-      min-height:24px!important;line-height:1.3!important;white-space:normal!important;
+      min-height:24px!important;line-height:1.5!important;white-space:normal!important;
       word-wrap:break-word!important;height:auto!important;overflow:visible!important}
     .d0 .title{background:linear-gradient(135deg,#6B1111,#8B1A1A)!important;box-shadow:0 2px 8px rgba(107,17,17,.5)}
     .d1 .title{background:linear-gradient(135deg,#992222,#B03030)!important;box-shadow:0 2px 8px rgba(153,34,34,.4)}
@@ -96,6 +134,17 @@
     .orgchart .lines .rightLine{border-right:1px solid #30363D!important}
     .orgchart .lines .leftLine{border-left:1px solid #30363D!important}
     .orgchart .node .edge{display:none!important}
+
+    /* Function tag inside node */
+    .fn-tag{
+      display:inline-block;font-size:9px;font-family:'Barlow Condensed',sans-serif;
+      font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      padding:1px 5px;border-radius:2px;margin-top:3px;
+      background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);
+      border:1px solid rgba(255,255,255,.2);
+    }
+
+    /* Roster table */
     #roster-search{display:flex;align-items:center;gap:10px;margin-bottom:16px}
     #search-input{font-family:'Barlow',sans-serif;font-size:12px;background:var(--surface);
       border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:4px;
@@ -124,6 +173,8 @@
     #roster-table td.email a:hover{text-decoration:underline}
     #roster-table td.phone{font-size:11px;color:var(--dim)}
     .dbadge{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+    /* Loading */
     #loading{position:fixed;inset:0;background:var(--bg);display:flex;
       flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:18px}
     .slogo{width:52px;height:52px;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
@@ -133,6 +184,8 @@
     .sfill{height:100%;background:linear-gradient(90deg,var(--accent),#E74C3C);animation:lb 1.5s ease-in-out infinite}
     @keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
     .stxt{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+    /* Message */
     #msgbox{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:100}
     #msgbox.vis{display:flex}
     .mcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:30px 38px;max-width:500px;text-align:center}
@@ -141,6 +194,8 @@
     .mcard p{font-size:12px;color:var(--dim);line-height:1.7}
     .mcard a{color:#79C0FF}
     .mcard code{display:block;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-size:10px;color:#79C0FF;text-align:left;margin-top:10px;line-height:1.6;word-break:break-all}
+
+    /* Zoom */
     #zc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:4px;z-index:50}
     #zc.hidden{display:none}
     .zb{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);color:var(--dim);
@@ -175,9 +230,20 @@
         <div class="htitle">Activation Org Chart</div>
       </div>
       <div id="badge"><span class="dot"></span>ACTIVATED</div>
+      <div id="level-badge" class="level3">
+        <div class="level-dot"></div>
+        <span id="level-text">Level 3</span>
+      </div>
     </div>
     <div class="hr"></div>
   </div>
+
+  <!-- Bookmark warning -->
+  <div id="bookmark-warning">
+    <span class="warn-icon">⚠️</span>
+    <span>Do not bookmark this page — it reflects a specific activation snapshot. For current data always access via the <strong>DOCC Portal</strong> at <a href="https://rdcrss.org/docc" style="color:#F4D03F">rdcrss.org/docc</a>.</span>
+  </div>
+
   <div id="leg">
     <span class="ll">Levels:</span>
     <div class="li"><div class="ls" style="background:#6B1111"></div>Director</div>
@@ -191,15 +257,18 @@
     <div class="li"><div class="ls" style="background:#784212"></div>L8</div>
     <div style="margin-left:auto;font-size:10px;color:var(--dim)">Drag to pan &nbsp;·&nbsp; Scroll to zoom</div>
   </div>
+
   <div id="tabs">
     <button class="tab active" id="tab-chart" onclick="showTab('chart')">Org Chart</button>
     <button class="tab" id="tab-table" onclick="showTab('table')">Roster</button>
   </div>
+
   <div id="panel-chart">
     <div id="inner">
       <div id="chart"></div>
     </div>
   </div>
+
   <div id="panel-table">
     <div id="roster-search">
       <input type="text" id="search-input" placeholder="Search position, name, section..." oninput="filterTable()">
@@ -231,10 +300,14 @@
 <script>
 var zoom = 1.0;
 var allItems = [];
+var activationLevel = 'Level 3';
 var sortCol = 'so';
 var sortAsc = true;
 var depthColors = ['#6B1111','#992222','#0F3460','#16497A','#0B5345','#0E6655','#2C3E50','#4A235A','#784212'];
 var depthMap = {};
+
+// Functions that display as Watch Officer at L3, Duty Officer otherwise
+var watchOfficerFunctions = ['Duty Officers / Watch Officers', 'Duty Officer / Watch Officer'];
 
 function param(n) {
   var r = new RegExp('[?&]' + n + '=([^&#]*)').exec(location.href);
@@ -253,17 +326,39 @@ function showMsg(icon, title, body, code, err) {
   $('#msgbox').addClass('vis');
 }
 
+// Set activation level badge color and text
+function setLevelBadge(level) {
+  var badge = document.getElementById('level-badge');
+  var text = document.getElementById('level-text');
+  badge.className = 'level3'; // default
+  if (level && level.indexOf('1') > -1) badge.className = 'level1';
+  else if (level && level.indexOf('2') > -1) badge.className = 'level2';
+  else badge.className = 'level3';
+  text.textContent = level || 'Level 3';
+}
+
+// Get the function label based on activation level
+function getFunctionLabel(fn, level) {
+  if (!fn) return '';
+  var isLevel3 = level && level.indexOf('3') > -1;
+  // Watch Officer / Duty Officer logic
+  if (watchOfficerFunctions.indexOf(fn) > -1) {
+    return isLevel3 ? 'Watch Officer' : 'Duty Officer';
+  }
+  return fn;
+}
+
 function buildTree(items) {
   var map = {}, roots = [];
   items.forEach(function(x) {
-    map[x.i] = {id:String(x.i), name:x.t, title:x.p, pid:x.r||0, children:[]};
+    map[x.i] = {id:String(x.i), name:x.t, title:x.p, fn:x.f||'', pid:x.r||0, children:[]};
   });
   Object.values(map).forEach(function(n) {
     if (n.pid && map[n.pid]) map[n.pid].children.push(n);
     else roots.push(n);
   });
   if (!roots.length) throw new Error('No root nodes found.');
-  return roots.length === 1 ? roots[0] : {id:'r',name:'DOCC',title:'',pid:0,children:roots};
+  return roots.length === 1 ? roots[0] : {id:'r',name:'DOCC',title:'',fn:'',pid:0,children:roots};
 }
 
 function assignDepths(n, d) {
@@ -273,14 +368,21 @@ function assignDepths(n, d) {
 
 function renderChart(tree) {
   $('#chart').empty();
-  $('#chart').css({'width':'100%','height':'calc(100vh - 160px)','overflow':'visible'});
+  $('#chart').css({'width':'100%','height':'calc(100vh - 200px)','overflow':'visible'});
   $('#chart').orgchart({
     data: tree, nodeTitle:'name', nodeContent:'title',
     pan:true, zoom:true, zoomInLimit:2.5, zoomOutLimit:0.15, collapsible:false,
     createNode: function($n, d) {
       $n.addClass('d' + Math.min(d.depth||0, 8));
       $n.find('.title').text(d.name||'');
-      $n.find('.content').text(d.title||'');
+
+      // Build content: person name + function tag if applicable
+      var fnLabel = getFunctionLabel(d.fn||'', activationLevel);
+      var contentHtml = '<div>' + (d.title||'') + '</div>';
+      if (fnLabel) {
+        contentHtml += '<div><span class="fn-tag">' + fnLabel + '</span></div>';
+      }
+      $n.find('.content').html(contentHtml);
     }
   });
   setTimeout(function() {
@@ -326,9 +428,10 @@ function renderTable(items) {
     var color = depthColors[Math.min(d,depthColors.length-1)];
     var isVacant = !x.p||x.p==='(Vacant)';
     var emailHtml = x.e ? '<a href="mailto:'+x.e+'">'+esc(x.e)+'</a>' : '<span style="color:var(--dim)">--</span>';
+    var fnLabel = getFunctionLabel(x.f||'', activationLevel);
     var tr = document.createElement('tr');
     tr.innerHTML =
-      '<td class="pos"><span class="dbadge" style="background:'+color+'"></span>'+esc(x.t||'')+'</td>'+
+      '<td class="pos"><span class="dbadge" style="background:'+color+'"></span>'+esc(x.t||'')+(fnLabel?'<br><span style="font-size:10px;color:var(--dim)">'+esc(fnLabel)+'</span>':'')+'</td>'+
       '<td class="sec">'+esc(x.s||'--')+'</td>'+
       '<td class="'+(isVacant?'vacant':'')+'">'+esc(x.p||'(Vacant)')+'</td>'+
       '<td class="phone">'+esc(x.ph||'--')+'</td>'+
@@ -389,6 +492,7 @@ function zoomOut() { zoom=Math.max(zoom-0.15,0.15); $('#chart').css({transform:'
 
 $(function() {
   var raw = param('data');
+  var level = param('level');
 
   if (!raw) {
     var countdown = 5;
@@ -407,6 +511,10 @@ $(function() {
     }, 1000);
     return;
   }
+
+  // Set activation level
+  activationLevel = level || 'Level 3';
+  setLevelBadge(activationLevel);
 
   try {
     allItems = JSON.parse(raw);
