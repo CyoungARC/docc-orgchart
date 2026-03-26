@@ -115,6 +115,23 @@
     .zb{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);color:var(--dim);
       border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
     .zb:hover{background:var(--surface2);color:var(--text);border-color:#555}
+
+    /* Force dark theme over BALKAN injected styles */
+    #tree, .orgchart-container, .orgchart-container > svg {
+      background:transparent!important;
+    }
+    .orgchart-container .searchUI {
+      background:#161B22!important;
+      border:1px solid #30363D!important;
+      border-radius:6px!important;
+    }
+    .orgchart-container .searchUI input {
+      background:#0D1117!important;
+      color:#E6EDF3!important;
+      border:1px solid #30363D!important;
+    }
+    .orgchart-container .searchUI .bicon { fill:#8B949E!important; }
+    .orgchart-watermark { display:none!important; }
   </style>
 </head>
 <body>
@@ -279,27 +296,30 @@ function renderChart(items) {
   OrgChart.templates.docc.size = [W, H];
   OrgChart.templates.docc.defs = '';
   OrgChart.templates.docc.ripple = { radius: 0, color: 'none', rect: null };
+  OrgChart.templates.docc.nodeMenuButton = '';
 
   // Dynamic node function — color based on depth stored in data
   OrgChart.templates.docc.node = function(node, data) {
     var color = data.nodeColor || '#2C3E50';
     return (
-      '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="6" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
-      '<rect x="0" y="0" width="' + W + '" height="' + TH + '" rx="6" fill="' + color + '"/>' +
-      '<rect x="0" y="' + (TH-6) + '" width="' + W + '" height="6" fill="' + color + '"/>'
+      '<rect x="0" y="0" width="' + node.w + '" height="' + node.h + '" rx="6" fill="#21262D" stroke="#30363D" stroke-width="1"/>' +
+      '<rect x="0" y="0" width="' + node.w + '" height="' + TH + '" rx="6" fill="' + color + '"/>' +
+      '<rect x="0" y="' + (TH-6) + '" width="' + node.w + '" height="6" fill="' + color + '"/>'
     );
   };
 
   // Fields positioned within the node
   OrgChart.templates.docc.field_0 =
-    '<text data-width="180" style="font-size:11px;font-weight:700;font-family:\'Barlow Condensed\',sans-serif;dominant-baseline:middle" fill="rgba(255,255,255,0.95)" x="10" y="14">{val}</text>';
+    '<text data-width="180" style="font-size:11px;font-weight:700;font-family:Barlow Condensed,sans-serif" fill="rgba(255,255,255,0.95)" x="10" y="15">{val}</text>';
   OrgChart.templates.docc.field_1 =
-    '<text data-width="180" style="font-size:10px;font-family:\'Barlow\',sans-serif;dominant-baseline:middle" fill="#8B949E" x="10" y="' + (TH+14) + '">{val}</text>';
+    '<text data-width="180" style="font-size:10px;font-family:Barlow,sans-serif" fill="#8B949E" x="10" y="' + (TH+15) + '">{val}</text>';
   OrgChart.templates.docc.field_2 =
-    '<text data-width="180" style="font-size:9px;font-family:\'Barlow Condensed\',sans-serif;font-weight:600;dominant-baseline:middle" fill="rgba(255,255,255,0.55)" x="10" y="' + (TH+28) + '">{val}</text>';
+    '<text data-width="180" style="font-size:9px;font-family:Barlow Condensed,sans-serif;font-weight:600" fill="rgba(255,255,255,0.55)" x="10" y="' + (TH+29) + '">{val}</text>';
 
+  // Connector lines — must use exact BALKAN path syntax
   OrgChart.templates.docc.link =
-    '<path stroke="#30363D" stroke-width="1px" fill="none" data-l-id="[{id}][{child-id}]" d="M{xa},{ya} C{xb},{yb} {xc},{yc} {xd},{yd}" />';
+    '<path stroke="#555E6B" stroke-width="1px" fill="none" data-l-id="[{id}][{child-id}]" d="M{xa},{ya} C{xb},{yb} {xc},{yc} {xd},{yd}" />';
+  OrgChart.templates.docc.pointer = '';
 
   // Build node array
   var nodes = items.map(function(x) {
