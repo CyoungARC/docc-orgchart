@@ -342,17 +342,14 @@ function truncate(str, max) {
 
 // ── Build hierarchy ──────────────────────────────────────────────
 function buildHierarchy(items) {
-  // Separate assistants from regular nodes
   var regular = items.filter(function(x) { return !x.a || x.a === false || x.a === 'false'; });
   var assistants = items.filter(function(x) { return x.a === true || x.a === 1 || x.a === 'true'; });
 
-  // Build map for regular nodes
   var map = {};
   regular.forEach(function(x) {
-    map[x.i] = { data: x, children: [], assistants: [] };
+    map[x.i] = { data: x, children: [], _children: [], assistants: [], collapsed: false };
   });
 
-  // Find roots and link children
   var roots = [];
   regular.forEach(function(x) {
     var node = map[x.i];
@@ -364,31 +361,55 @@ function buildHierarchy(items) {
     }
   });
 
-  // Attach assistants to their parents
   assistants.forEach(function(x) {
     var pid = x.r;
     if (pid && map[pid]) {
-      map[pid].assistants.push({ data: x, children: [], assistants: [] });
+      map[pid].assistants.push({ data: x, children: [], _children: [], assistants: [], collapsed: false });
     } else if (roots.length > 0) {
-      roots[0].assistants.push({ data: x, children: [], assistants: [] });
+      roots[0].assistants.push({ data: x, children: [], _children: [], assistants: [], collapsed: false });
     }
   });
 
   if (!roots.length) throw new Error('No root nodes found.');
-  if (roots.length === 1) return roots[0];
-
-  // Multiple roots — wrap in virtual root
-  return {
+  var root = roots.length === 1 ? roots[0] : {
     data: { i: -1, t: 'DOCC', p: '', r: 0, s: '', f: '', ph: '', e: '', so: 0, a: false },
-    children: roots,
-    assistants: []
+    children: roots, _children: [], assistants: [], collapsed: false
   };
+
+  // Collapse everything below depth 2 (NAD level) by default
+  function collapseBelow(node, d) {
+    node.depth = d;
+    node.assistants.forEach(function(a) { a.depth = d + 1; });
+    if (d >= 2 && node.children.length) {
+      node._children = node.children;
+      node.children = [];
+      node.collapsed = true;
+      node._children.forEach(function(c) { collapseBelow(c, d + 1); });
+    } else {
+      node.children.forEach(function(c) { collapseBelow(c, d + 1); });
+    }
+  }
+  collapseBelow(root, 0);
+
+  return root;
+}
+
+// ── Toggle collapse ──────────────────────────────────────────────
+function toggleNode(node) {
+  if (node.collapsed) {
+    node.children = node._children;
+    node._children = [];
+    node.collapsed = false;
+  } else if (node.children.length) {
+    node._children = node.children;
+    node.children = [];
+    node.collapsed = true;
+  }
+  redrawChart();
 }
 
 // ── Layout ───────────────────────────────────────────────────────
-// Custom tree layout that handles assistant nodes
 function layoutTree(root) {
-  // Assign depths
   function setDepth(node, d) {
     node.depth = d;
     node.children.forEach(function(c) { setDepth(c, d + 1); });
@@ -396,42 +417,32 @@ function layoutTree(root) {
   }
   setDepth(root, 0);
 
-  // Bottom-up width calculation
   function calcWidth(node) {
-    if (!node.children.length) {
-      node.subtreeW = NODE_W;
-      return node.subtreeW;
-    }
-    var childrenW = node.children.reduce(function(sum, c) {
+    var visChildren = node.children;
+    if (!visChildren.length) { node.subtreeW = NODE_W; return node.subtreeW; }
+    var childrenW = visChildren.reduce(function(sum, c) {
       return sum + calcWidth(c);
-    }, 0) + H_GAP * (node.children.length - 1);
+    }, 0) + H_GAP * (visChildren.length - 1);
     node.subtreeW = Math.max(NODE_W, childrenW);
     return node.subtreeW;
   }
   calcWidth(root);
 
-  // Top-down position assignment
   function assignPos(node, x, y) {
     node.x = x;
     node.y = y;
-
-    if (!node.children.length) return;
-
-    var totalW = node.children.reduce(function(sum, c) {
-      return sum + c.subtreeW;
-    }, 0) + H_GAP * (node.children.length - 1);
-
+    var visChildren = node.children;
+    if (!visChildren.length) return;
+    var totalW = visChildren.reduce(function(sum, c) { return sum + c.subtreeW; }, 0) + H_GAP * (visChildren.length - 1);
     var startX = x - totalW / 2;
-    node.children.forEach(function(c) {
+    visChildren.forEach(function(c) {
       var cx = startX + c.subtreeW / 2;
       assignPos(c, cx, y + NODE_H + V_GAP);
       startX += c.subtreeW + H_GAP;
     });
-
-    // Position assistants — same row as children, to the right of rightmost child
     var rightmostX = x;
-    if (node.children.length > 0) {
-      var lastChild = node.children[node.children.length - 1];
+    if (visChildren.length > 0) {
+      var lastChild = visChildren[visChildren.length - 1];
       rightmostX = lastChild.x + lastChild.subtreeW / 2;
     }
     node.assistants.forEach(function(a, idx) {
@@ -442,13 +453,111 @@ function layoutTree(root) {
   assignPos(root, 0, 0);
 }
 
+// ── Global chart root for redraw ─────────────────────────────────
+var chartRoot = null;
+var chartG = null;
+
+function redrawChart() {
+  if (!chartRoot || !chartG) return;
+  layoutTree(chartRoot);
+
+  var allNodes = [], allLinks = [], allAsstLinks = [];
+  function collectNodes(node) {
+    allNodes.push(node);
+    node.children.forEach(function(c) { allLinks.push({source:node,target:c}); collectNodes(c); });
+    node.assistants.forEach(function(a) { allNodes.push(a); allAsstLinks.push({source:node,target:a}); });
+  }
+  collectNodes(chartRoot);
+
+  // Update links
+  var links = chartG.selectAll('.tree-link').data(allLinks, function(d) { return d.source.data.i + '-' + d.target.data.i; });
+  links.exit().remove();
+  links.enter().append('path').attr('class','tree-link').merge(links)
+    .attr('d', function(d) {
+      var sx=d.source.x, sy=d.source.y+NODE_H, tx=d.target.x, ty=d.target.y, my=(sy+ty)/2;
+      return 'M'+sx+','+sy+'L'+sx+','+my+'L'+tx+','+my+'L'+tx+','+ty;
+    });
+
+  var alinks = chartG.selectAll('.assistant-line').data(allAsstLinks, function(d) { return d.source.data.i + '-' + d.target.data.i; });
+  alinks.exit().remove();
+  alinks.enter().append('path').attr('class','assistant-line').merge(alinks)
+    .attr('d', function(d) {
+      var sx=d.source.x, sy=d.source.y+NODE_H, tx=d.target.x, ty=d.target.y, my=(sy+ty)/2;
+      return 'M'+sx+','+sy+'L'+sx+','+my+'L'+tx+','+my+'L'+tx+','+ty;
+    });
+
+  // Update nodes
+  var nodeGroups = chartG.selectAll('.node-group').data(allNodes, function(d) { return d.data.i; });
+  nodeGroups.exit().remove();
+
+  var newGroups = nodeGroups.enter().append('g').attr('class','node-group');
+  newGroups.append('rect').attr('class','node-body-rect').attr('width',NODE_W).attr('height',NODE_H);
+  newGroups.append('rect').attr('class','node-title-rect').attr('width',NODE_W).attr('height',TITLE_H).attr('rx',CORNER).attr('ry',CORNER);
+  newGroups.append('rect').attr('class','node-title-sq').attr('x',0).attr('y',TITLE_H-CORNER).attr('width',NODE_W).attr('height',CORNER);
+  newGroups.append('text').attr('class','node-title-text').attr('x',10).attr('dominant-baseline','middle');
+  newGroups.append('text').attr('class','node-person-text').attr('x',10).attr('y',TITLE_H+14).attr('dominant-baseline','middle');
+  newGroups.append('text').attr('class','node-fn-text').attr('x',10).attr('y',TITLE_H+28).attr('dominant-baseline','middle');
+  // Collapse indicator circle
+  newGroups.append('circle').attr('class','collapse-dot').attr('cx',NODE_W/2).attr('cy',NODE_H).attr('r',6)
+    .style('cursor','pointer')
+    .on('click', function(event, d) { event.stopPropagation(); toggleNode(d); });
+
+  var allGroups = newGroups.merge(nodeGroups);
+
+  allGroups.attr('transform', function(d) { return 'translate('+(d.x-NODE_W/2)+','+d.y+')'; })
+    .style('cursor', function(d) { return (d.children.length || d._children.length) ? 'pointer' : 'default'; })
+    .on('click', function(event, d) { if (d.children.length || d._children.length) toggleNode(d); });
+
+  allGroups.select('.node-title-rect')
+    .attr('fill', function(d) { return DEPTH_COLORS[Math.min(d.depth||0, DEPTH_COLORS.length-1)]; });
+  allGroups.select('.node-title-sq')
+    .attr('fill', function(d) { return DEPTH_COLORS[Math.min(d.depth||0, DEPTH_COLORS.length-1)]; });
+
+  allGroups.select('.node-title-text')
+    .each(function(d) {
+      var el = d3.select(this);
+      el.selectAll('tspan').remove();
+      var title = truncate(d.data.t||'', 24);
+      var words = title.split(' '), line1='', line2='';
+      for (var i=0; i<words.length; i++) {
+        if ((line1+' '+words[i]).trim().length<=22) line1=(line1+' '+words[i]).trim();
+        else { line2=words.slice(i).join(' '); break; }
+      }
+      if (line2) {
+        el.attr('y', TITLE_H/2-7)
+          .append('tspan').attr('x',10).attr('dy',0).text(line1);
+        el.append('tspan').attr('x',10).attr('dy',13).text(truncate(line2,22));
+      } else {
+        el.attr('y', TITLE_H/2+1).text(line1);
+      }
+    });
+
+  allGroups.select('.node-person-text')
+    .attr('class', function(d) { return 'node-person-text'+(!d.data.p||d.data.p==='(Vacant)'?' node-vacant':''); })
+    .text(function(d) { return truncate(d.data.p||'(Vacant)',26); });
+
+  allGroups.select('.node-fn-text')
+    .text(function(d) { return truncate(getFnLabel(d.data.f||'',activationLevel),28); });
+
+  // Collapse dot — show only when node has hidden children
+  allGroups.select('.collapse-dot')
+    .attr('fill', function(d) {
+      if (d._children && d._children.length) return '#F4D03F';
+      return 'none';
+    })
+    .attr('stroke', function(d) {
+      if (d._children && d._children.length) return '#C8A800';
+      return 'none';
+    })
+    .attr('stroke-width', 1);
+}
+
 // ── Render ───────────────────────────────────────────────────────
 function renderChart(items) {
   var container = document.getElementById('chart-svg-container');
   container.innerHTML = '';
 
-  var root = buildHierarchy(items);
-  layoutTree(root);
+  chartRoot = buildHierarchy(items);
 
   var W = container.clientWidth || window.innerWidth;
   var H = container.clientHeight || window.innerHeight - 200;
@@ -459,170 +568,23 @@ function renderChart(items) {
     .attr('height', H)
     .style('background', 'transparent');
 
-  var g = svgSelection.append('g').attr('class', 'chart-root');
+  chartG = svgSelection.append('g').attr('class', 'chart-root');
 
-  // Zoom behavior
   zoomBehavior = d3.zoom()
     .scaleExtent([0.1, 2.5])
-    .on('zoom', function(event) {
-      g.attr('transform', event.transform);
-    });
+    .on('zoom', function(event) { chartG.attr('transform', event.transform); });
   svgSelection.call(zoomBehavior);
 
-  // Collect all nodes for rendering
-  var allNodes = [];
-  var allLinks = [];
-  var allAsstLinks = [];
+  redrawChart();
 
-  function collectNodes(node) {
-    allNodes.push(node);
-    node.children.forEach(function(c) {
-      allLinks.push({ source: node, target: c });
-      collectNodes(c);
-    });
-    node.assistants.forEach(function(a) {
-      allNodes.push(a);
-      allAsstLinks.push({ source: node, target: a });
-    });
-  }
-  collectNodes(root);
-
-  // Draw regular links (elbow connectors)
-  g.selectAll('.tree-link')
-    .data(allLinks)
-    .enter()
-    .append('path')
-    .attr('class', 'tree-link')
-    .attr('d', function(d) {
-      var sx = d.source.x;
-      var sy = d.source.y + NODE_H;
-      var tx = d.target.x;
-      var ty = d.target.y;
-      var my = (sy + ty) / 2;
-      return 'M' + sx + ',' + sy +
-             'L' + sx + ',' + my +
-             'L' + tx + ',' + my +
-             'L' + tx + ',' + ty;
-    });
-
-  // Draw assistant links — same elbow style as regular links but dashed
-  g.selectAll('.assistant-line')
-    .data(allAsstLinks)
-    .enter()
-    .append('path')
-    .attr('class', 'assistant-line')
-    .attr('d', function(d) {
-      var sx = d.source.x;
-      var sy = d.source.y + NODE_H;
-      var tx = d.target.x;
-      var ty = d.target.y;
-      var my = (sy + ty) / 2;
-      return 'M' + sx + ',' + sy +
-             'L' + sx + ',' + my +
-             'L' + tx + ',' + my +
-             'L' + tx + ',' + ty;
-    });
-
-  // Draw nodes
-  var nodeGroups = g.selectAll('.node-group')
-    .data(allNodes)
-    .enter()
-    .append('g')
-    .attr('class', 'node-group')
-    .attr('transform', function(d) {
-      return 'translate(' + (d.x - NODE_W / 2) + ',' + d.y + ')';
-    });
-
-  // Node background
-  nodeGroups.append('rect')
-    .attr('class', 'node-body-rect')
-    .attr('width', NODE_W)
-    .attr('height', NODE_H);
-
-  // Title bar
-  nodeGroups.append('rect')
-    .attr('class', 'node-title-rect')
-    .attr('width', NODE_W)
-    .attr('height', TITLE_H)
-    .attr('rx', CORNER)
-    .attr('ry', CORNER)
-    .attr('fill', function(d) {
-      var depth = d.depth || 0;
-      return DEPTH_COLORS[Math.min(depth, DEPTH_COLORS.length - 1)];
-    });
-
-  // Square off bottom of title bar
-  nodeGroups.append('rect')
-    .attr('x', 0)
-    .attr('y', TITLE_H - CORNER)
-    .attr('width', NODE_W)
-    .attr('height', CORNER)
-    .attr('fill', function(d) {
-      var depth = d.depth || 0;
-      return DEPTH_COLORS[Math.min(depth, DEPTH_COLORS.length - 1)];
-    });
-
-  // Position title
-  nodeGroups.append('text')
-    .attr('class', 'node-title-text')
-    .attr('x', 10)
-    .attr('y', TITLE_H / 2 + 1)
-    .attr('dominant-baseline', 'middle')
-    .each(function(d) {
-      var title = truncate(d.data.t || '', 24);
-      var words = title.split(' ');
-      var line1 = '', line2 = '';
-      // Simple two-line wrap at ~22 chars
-      for (var i = 0; i < words.length; i++) {
-        if ((line1 + ' ' + words[i]).trim().length <= 22) {
-          line1 = (line1 + ' ' + words[i]).trim();
-        } else {
-          line2 = words.slice(i).join(' ');
-          break;
-        }
-      }
-      if (line2) {
-        d3.select(this)
-          .attr('y', TITLE_H / 2 - 7)
-          .append('tspan').attr('x', 10).attr('dy', 0).text(line1);
-        d3.select(this)
-          .append('tspan').attr('x', 10).attr('dy', 13).text(truncate(line2, 22));
-      } else {
-        d3.select(this).text(line1);
-      }
-    });
-
-  // Person name
-  nodeGroups.append('text')
-    .attr('class', function(d) {
-      return 'node-person-text' + (!d.data.p || d.data.p === '(Vacant)' ? ' node-vacant' : '');
-    })
-    .attr('x', 10)
-    .attr('y', TITLE_H + 14)
-    .attr('dominant-baseline', 'middle')
-    .text(function(d) {
-      return truncate(d.data.p || '(Vacant)', 26);
-    });
-
-  // Function label
-  nodeGroups.append('text')
-    .attr('class', 'node-fn-text')
-    .attr('x', 10)
-    .attr('y', TITLE_H + 28)
-    .attr('dominant-baseline', 'middle')
-    .text(function(d) {
-      return truncate(getFnLabel(d.data.f || '', activationLevel), 28);
-    });
-
-  // Center the chart
-  var bounds = g.node().getBBox();
-  var scale = Math.min(0.9, Math.min(W / (bounds.width + 80), H / (bounds.height + 80)));
-  var tx = W / 2 - (bounds.x + bounds.width / 2) * scale;
-  var ty = 40 - bounds.y * scale;
-  svgSelection.call(
-    zoomBehavior.transform,
-    d3.zoomIdentity.translate(tx, ty).scale(scale)
-  );
+  // Auto-fit after draw
+  setTimeout(function() {
+    var bounds = chartG.node().getBBox();
+    var scale = Math.min(0.9, Math.min(W/(bounds.width+80), H/(bounds.height+80)));
+    var tx = W/2 - (bounds.x+bounds.width/2)*scale;
+    var ty = 40 - bounds.y*scale;
+    svgSelection.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx,ty).scale(scale));
+  }, 50);
 }
 
 // ── Zoom controls ────────────────────────────────────────────────
@@ -635,12 +597,11 @@ function zoomOut() {
     svgSelection.transition().duration(200).call(zoomBehavior.scaleBy, 0.77);
 }
 function resetZoom() {
-  if (!svgSelection || !zoomBehavior) return;
+  if (!svgSelection || !zoomBehavior || !chartG) return;
   var container = document.getElementById('chart-svg-container');
   var W = container.clientWidth;
   var H = container.clientHeight;
-  var g = svgSelection.select('.chart-root');
-  var bounds = g.node().getBBox();
+  var bounds = chartG.node().getBBox();
   var scale = Math.min(0.9, Math.min(W / (bounds.width + 80), H / (bounds.height + 80)));
   var tx = W / 2 - (bounds.x + bounds.width / 2) * scale;
   var ty = 40 - bounds.y * scale;
