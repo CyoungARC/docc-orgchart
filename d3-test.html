@@ -428,11 +428,15 @@ function layoutTree(root) {
       startX += c.subtreeW + H_GAP;
     });
 
-    // Position assistants — to the right of the connector line midpoint
-    var connMidY = y + NODE_H + V_GAP / 2;
+    // Position assistants — same row as children, to the right of rightmost child
+    var rightmostX = x;
+    if (node.children.length > 0) {
+      var lastChild = node.children[node.children.length - 1];
+      rightmostX = lastChild.x + lastChild.subtreeW / 2;
+    }
     node.assistants.forEach(function(a, idx) {
-      a.x = x + NODE_W / 2 + H_GAP + NODE_W / 2 + idx * (NODE_W + H_GAP);
-      a.y = connMidY - NODE_H / 2;
+      a.x = rightmostX + H_GAP + NODE_W / 2 + idx * (NODE_W + H_GAP);
+      a.y = y + NODE_H + V_GAP;
     });
   }
   assignPos(root, 0, 0);
@@ -483,7 +487,7 @@ function renderChart(items) {
   }
   collectNodes(root);
 
-// Draw regular links (straight 90-degree elbow connectors)
+  // Draw regular links (elbow connectors)
   g.selectAll('.tree-link')
     .data(allLinks)
     .enter()
@@ -501,21 +505,21 @@ function renderChart(items) {
              'L' + tx + ',' + ty;
     });
 
-  // Draw assistant links (dashed line from parent mid-right)
+  // Draw assistant links — same elbow style as regular links but dashed
   g.selectAll('.assistant-line')
     .data(allAsstLinks)
     .enter()
     .append('path')
     .attr('class', 'assistant-line')
     .attr('d', function(d) {
-      // Line from bottom-center of parent, across to assistant
       var sx = d.source.x;
-      var sy = d.source.y + NODE_H + V_GAP / 2;
+      var sy = d.source.y + NODE_H;
       var tx = d.target.x;
-      var ty = d.target.y + NODE_H / 2;
-      return 'M' + sx + ',' + (d.source.y + NODE_H) +
-             'L' + sx + ',' + sy +
-             'L' + tx + ',' + sy +
+      var ty = d.target.y;
+      var my = (sy + ty) / 2;
+      return 'M' + sx + ',' + sy +
+             'L' + sx + ',' + my +
+             'L' + tx + ',' + my +
              'L' + tx + ',' + ty;
     });
 
