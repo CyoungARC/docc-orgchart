@@ -275,6 +275,20 @@ var DEPTH_COLORS = [
 
 var DUAL_FNS = ['Duty Officers / Watch Officers','Duty Officer / Watch Officer'];
 
+// Function number decoder — matches PowerApps Switch() encoding
+var FN_MAP = {
+  0: '', 1: 'NAD', 2: 'Deputy NAD', 3: 'Watch Officer',
+  4: 'Duty Officer / Watch Officer', 5: 'Liaison'
+};
+
+function decodeFn(f) {
+  // If numeric (from compressed URL), decode it
+  if (typeof f === 'number' || (typeof f === 'string' && /^\d+$/.test(f))) {
+    return FN_MAP[parseInt(f)] || '';
+  }
+  return f || '';
+}
+
 // ── State ────────────────────────────────────────────────────────
 var allItems = [];
 var activationLevel = 'Level 3';
@@ -314,10 +328,11 @@ function setLevelBadge(level) {
 }
 
 function getFnLabel(fn, level) {
-  if (!fn) return '';
+  var decoded = decodeFn(fn);
+  if (!decoded) return '';
   var isL3 = level && level.indexOf('3') > -1;
-  if (DUAL_FNS.indexOf(fn) > -1) return isL3 ? 'Duty Officer' : 'Watch Officer';
-  return fn;
+  if (DUAL_FNS.indexOf(decoded) > -1) return isL3 ? 'Duty Officer' : 'Watch Officer';
+  return decoded;
 }
 
 function truncate(str, max) {
